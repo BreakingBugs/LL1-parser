@@ -4,9 +4,10 @@ EPS = 'ε'
 
 
 class Rule:
-    def __init__(self, lhs, rhs):
+    def __init__(self, lhs, rhs, is_start=False):
         self.lhs = lhs
-        self.rhs = rhs.strip().split(' ')
+        self.rhs = rhs
+        self.is_start = is_start
 
     def __str__(self):
         return "{} -> {}".format(self.lhs, ' '.join(self.rhs))
@@ -29,12 +30,14 @@ class Grammar:
         return s not in self.nonterminals
 
     @staticmethod
-    def from_array(array):
-        g = Grammar()
+    def from_array(array, start=None):
+        start = start if start else array[0][0]
+        g = Grammar(start=start)
         for lhs, rhs in array:
             r = rhs if isinstance(rhs, list) else [rhs]
             for x in r:
-                rule = Rule(lhs, x)
+                is_start = (lhs == start)
+                rule = Rule(lhs, x, is_start)
                 g.add_rule(rule)
 
         return g
@@ -44,6 +47,9 @@ class Grammar:
         a_productions = [r.rhs for r in self.rules if r.lhs == a]
         return a_productions
 
+    '''
+    Compute FIRST(X)
+    '''
     def first(self, x):
         f = set()
         if isinstance(x, list):
@@ -56,6 +62,9 @@ class Grammar:
 
         return sorted(f)
 
+    '''
+    Compute FIRST(Y1Y2...Yk)
+    '''
     def first_multiple(self, tokens):
         f = set()
 
@@ -67,6 +76,20 @@ class Grammar:
 
         return f
 
+    @staticmethod
+    def parse_bnf(text):
+        rules = text.strip().split('\n')
+        g = Grammar()
+
+        for r in rules:
+            head, body = [x.strip() for x in r.split('->')]
+            productions = [p.strip() for p in body.split('|')]
+            productions_tokenized = [p.split() for p in productions]
+            for p in productions_tokenized:
+                g.add_rule(Rule(head, p))
+
+        return g
+
     def __str__(self):
         return '\n'.join([str(p) for p in self.rules])
 
@@ -74,22 +97,17 @@ class Grammar:
         return '\n'.join([repr(p) for p in self.rules])
 
 
-bnf = [
-    ("E", "T E'"),
-    ("E'", ["+ T E'", EPS]),
-    ("T", "F T'"),
-    ("T'", ["* F T'", EPS]),
-    ("F", ["( E )", "id"])
-]
+bnf_text = "E -> T E'\n" \
+           "E' -> + T E' | ε\n" \
+           "T -> F T'\n" \
+           "T' -> * F T' | ε\n" \
+           "F -> ( E ) | id"
 
-grammar = Grammar.from_array(bnf)
+g = Grammar.parse_bnf(bnf_text)
 
-# print(grammar)
+print(bnf_text)
 print()
+print(g)
 
-for nt in grammar.nonterminals:
-    print('FIRST({}) = {}'.format(nt, grammar.first(nt)))
-# grammar.find_first('E\'')
-# grammar.find_first('T')
-# grammar.find_first('T\'')
-# grammar.find_first('F')
+for nt in g.nonterminals:
+    print('FIRST({}) = {}'.format(nt, g.first(nt)))
