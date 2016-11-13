@@ -1,3 +1,5 @@
+ # -*- coding: utf-8 -*-
+
 from collections import OrderedDict
 
 
@@ -63,6 +65,23 @@ class Grammar:
                 break
 
         return f
+
+    def parsing_table(self):
+        table = {}
+        for r in self.rules:
+            terminals = self.first(r.rhs)
+            for t in terminals:
+                if not self.is_terminal(t):
+                    continue
+                if t == self.epsilon:
+                    pass # TODO Add elements from FOLLOW
+                else:
+                    if(table.get((r.lhs, t))):
+                        pass # TODO Ambiguity found
+                    else:
+                        table[(r.lhs, t)] = r
+        return table
+
 
     def __str__(self):
         return '\n'.join([str(p) for p in self.rules])

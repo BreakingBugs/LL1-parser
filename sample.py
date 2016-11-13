@@ -1,3 +1,5 @@
+ # -*- coding: utf-8 -*-
+
 from functions import Grammar, parse_bnf
 
 bnf_text = "E -> T E'\n" \
@@ -14,3 +16,8 @@ print(g)
 
 for nt in g.nonterminals:
     print('FIRST({}) = {}'.format(nt, g.first(nt)))
+
+table = g.parsing_table()
+print("Parsing Table: ")
+for k, v in table.items():
+    print("{}: {}".format(k, v))
