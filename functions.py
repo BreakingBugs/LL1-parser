@@ -2,27 +2,28 @@
 
 
 class Rule:
-    def __init__(self, lhs, rhs):
-        self.lhs = lhs
-        self.rhs = rhs
+    def __init__(self, head, body):
+        self.head = head
+        self.body = body
 
     def __str__(self):
-        return "{} -> {}".format(self.lhs, ' '.join(self.rhs))
+        return "{} -> {}".format(self.head, ' '.join(self.body))
 
     def __repr__(self):
-        return "{} -> {}".format(self.lhs, self.rhs)
+        return "{} -> {}".format(self.head, self.body)
 
 
 class Grammar:
-    def __init__(self, productions=None, start=None, epsilon='ε'):
-        self.rules = productions if productions else []
+    def __init__(self, productions=None, start=None, epsilon='ε', eof='$'):
+        self.productions = productions if productions else []
         self.start = start
-        self.nonterminals = {p.lhs for p in self.rules}
+        self.nonterminals = {p.head for p in self.productions}
         self.epsilon = epsilon
+        self.eof = eof
 
     def add_rule(self, rule):
-        self.rules.append(rule)
-        self.nonterminals = self.nonterminals.union({rule.lhs})
+        self.productions.append(rule)
+        self.nonterminals = self.nonterminals.union({rule.head})
 
     def is_terminal(self, s):
         return s not in self.nonterminals
@@ -30,13 +31,13 @@ class Grammar:
     def is_start_symbol(self, symbol):
         return self.start == symbol
 
-    def productions(self, a):
+    def productions_for(self, a):
         """
         Get productions associated to a nonterminal
         :param a: the nonterminal
         :return: list of a-productions
         """
-        a_productions = [r.rhs for r in self.rules if r.lhs == a]
+        a_productions = [r.body for r in self.productions if r.head == a]
         return a_productions
 
     def first(self, x):
@@ -54,7 +55,7 @@ class Grammar:
         elif self.is_terminal(x):
             f = {x}  # Rule 1 and 2
         else:
-            for p in self.productions(x):
+            for p in self.productions_for(x):
                 f = f.union(self.first(p))
 
         return f
@@ -88,49 +89,49 @@ class Grammar:
         """
         f = set()
         if self.is_start_symbol(nonterminal):
-            f.add('$')
+            f.add(self.eof)
 
-        for production in self.rules:
-            if nonterminal in production.rhs:
-                position = production.rhs.index(nonterminal)
-                a = production.rhs[0:position]
-                b = production.rhs[position + 1:]
+        for p in self.productions:
+            if nonterminal in p.body:
+                position = p.body.index(nonterminal)
+                a = p.body[0:position]
+                b = p.body[position + 1:]
 
                 # Case 1
                 if len(a) > 0 and len(b) > 0:
                     f = f.union(self.first(b).difference({self.epsilon}))
                 # Case 2.a
                 if len(a) > 0 and len(b) == 0:
-                    f = f.union(self.follow(production.lhs))
+                    f = f.union(self.follow(p.head))
                     break
                 # Case 2.b
                 if len(a) > 0 and len(b) > 0 and self.epsilon in self.first(b):
-                    f = f.union(self.follow(production.lhs))
+                    f = f.union(self.follow(p.head))
                     break
 
         return f
 
     def parsing_table(self):
         table = {}
-        for r in self.rules:
-            terminals = self.first(r.rhs)
+        for r in self.productions:
+            terminals = self.first(r.body)
             for t in terminals:
                 if not self.is_terminal(t):
                     continue
                 if t == self.epsilon:
                     pass  # TODO Add elements from FOLLOW
                 else:
-                    if (table.get((r.lhs, t))):
+                    if (table.get((r.head, t))):
                         pass  # TODO Ambiguity found
                     else:
-                        table[(r.lhs, t)] = r
+                        table[(r.head, t)] = r
         return table
 
     def __str__(self):
-        return '\n'.join([str(p) for p in self.rules])
+        return '\n'.join([str(p) for p in self.productions])
 
     def __repr__(self):
-        return '\n'.join([repr(p) for p in self.rules])
+        return '\n'.join([repr(p) for p in self.productions])
 
 
 def parse_bnf(text):
@@ -144,18 +145,18 @@ def parse_bnf(text):
     Two -> a
     Two -> b
 
-    Symbols are inferred as terminal by absence from the left hand side of production rules.
+    Symbols are inferred as terminal by absence from the left hand side of production productions.
     "->" designates definition, "|" designates alternation, and newlines designate termination.
     x -> y | z is EBNF short-hand for
     x -> y
     x -> z
     Be certain to place spaces between things you don't want read as one symbol. ( A ) ≠ (A)
     """
-    rules = text.strip().split('\n')
-    start = rules[0].split('->')[0].strip()  # First rule as starting symbol
+    productions = text.strip().split('\n')
+    start = productions[0].split('->')[0].strip()  # First rule as starting symbol
     g = Grammar(start=start)
 
-    for r in rules:
+    for r in productions:
         head, body = [x.strip() for x in r.split('->')]
         productions = [p.strip() for p in body.split('|')]
         productions_tokenized = [p.split() for p in productions]
