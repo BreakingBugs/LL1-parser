@@ -83,7 +83,7 @@ class Grammar:
         :param nonterminal: the nonterminal A
         :return: set of terminals that can appear immediately to the right of A in some partial derivation
 
-        1.  For each production X -> aAb, put FIRST (b) − {ε} in FOLLOW(A)
+        1.  For each production X -> aAb, put FIRST(b) − {ε} in FOLLOW(A)
         2.a For each production X -> aAb, if ε is in FIRST(b) then put FOLLOW(X) into FOLLOW(A)
         2.b For each production X -> aA, put FOLLOW(X) into FOLLOW(A)
         """
@@ -98,14 +98,14 @@ class Grammar:
                 b = p.body[position + 1:]
 
                 # Case 1
-                if len(a) > 0 and len(b) > 0:
+                if a and b:
                     f = f.union(self.first(b).difference({self.epsilon}))
                 # Case 2.a
-                if len(a) > 0 and len(b) == 0:
+                if a and not b:
                     f = f.union(self.follow(p.head))
                     break
                 # Case 2.b
-                if len(a) > 0 and len(b) > 0 and self.epsilon in self.first(b):
+                if a and b and self.epsilon in self.first(b):
                     f = f.union(self.follow(p.head))
                     break
 
@@ -126,6 +126,11 @@ class Grammar:
                     else:
                         table[(r.head, t)] = r
         return table
+
+    def print_join_productions(self):
+        for x in self.nonterminals:
+            bodies = [' '.join(p) for p in self.productions_for(x)]
+            print("{} -> {}".format(x, ' | '.join(bodies)))
 
     def __str__(self):
         return '\n'.join([str(p) for p in self.productions])
@@ -164,3 +169,61 @@ def parse_bnf(text):
             g.add_rule(Rule(head, p))
 
     return g
+
+
+def generate_key(grammar, x):
+    new_x = '{}'.format(x)
+    while new_x in grammar.nonterminals:
+        new_x += '\''
+
+    return new_x
+
+
+def remove_immediate_left_recursion(grammar, x):
+    """
+    Remove immediante left-recursion for given nonterminal
+    :param grammar: input grammar
+    :param x: the nonterminal
+    :return: list of equivalent productions. If there are no left-recursions, the productions aren't changed.
+    """
+    productions = grammar.productions_for(x)
+    recursive = []
+    nonrecursive = []
+    new_productions = []
+    for p in productions:
+        if p and x == p[0]:
+            recursive.append(p)
+        else:
+            nonrecursive.append(p)
+
+    if not recursive:
+        return [Rule(x, p) for p in productions]
+
+    new_x = generate_key(grammar, x)
+    for p in nonrecursive:
+        body = p + [new_x]  # A -> bA'
+        new_productions.append(Rule(x, body))
+
+    for p in recursive:
+        body = p[1:] + [new_x]  # A' -> aA' | ε
+        new_productions.append(Rule(new_x, body))
+        new_productions.append(Rule(new_x, grammar.epsilon))
+
+    return new_productions
+
+
+# TODO: remove indirect recursion
+def remove_left_recursion(grammar):
+    """
+    Remove all left recursions from grammar
+    :param grammar: input grammar
+    :return: equivalent grammar with no left-recursion
+    """
+    new_grammar = Grammar(start=grammar.start, epsilon=grammar.epsilon, eof=grammar.eof)
+
+    for nonterminal in grammar.nonterminals:
+        new_productions = remove_immediate_left_recursion(grammar, nonterminal)
+        for p in new_productions:
+            new_grammar.add_rule(p)
+
+    return new_grammar
