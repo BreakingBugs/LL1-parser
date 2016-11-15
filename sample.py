@@ -15,32 +15,33 @@ bnf_recursive = "E -> E + T | T\n" \
                 "T -> T * F | F\n" \
                 "F -> ( E ) | id"
 
+print("Before removing left-recursion")
 g = parse_bnf(bnf_recursive)
-g = remove_left_recursion(g)
-
-print(bnf_text)
-print()
 g.print_join_productions()
-print()
 
-for nt in g.nonterminals:
-    print('FIRST({}) = {}'.format(nt, g.first(nt)))
-print()
-
-for nt in g.nonterminals:
-    print('FOLLOW({}) = {}'.format(nt, g.follow(nt)))
-print()
-
-table = g.parsing_table()
-print("Parsing Table: ")
-for k, v in table.items():
-    print("{}: {}".format(k, v))
-
+print("\nAfter removing left-recursion")
+g = remove_left_recursion(g)
+g.print_join_productions()
+#
+# for nt in g.nonterminals:
+#     print('FIRST({}) = {}'.format(nt, g.first(nt)))
+# print()
+#
+# for nt in g.nonterminals:
+#     print('FOLLOW({}) = {}'.format(nt, g.follow(nt)))
+# print()
+#
+# table = g.parsing_table()
+# print("Parsing Table: ")
+# for k, v in table.items():
+#     print("{}: {}".format(k, v))
+#
 second_text = "E -> pa Q R | pa Q S | pa T\n" \
               "U -> e"
 
 third_text = "S -> i E t S | i E t S e S | a\n" \
              "E -> b"
+
 print("\n\nBefore left factoring: \n\n")
 print(second_text)
 print("\n\nLeft factoring: \n\n")

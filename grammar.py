@@ -22,6 +22,9 @@ class Grammar:
     def nonterminals(self):
         return self.productions.keys()
 
+    def iter_productions(self):
+        return itertools.chain.from_iterable(self.productions.values())
+
     def add_rule(self, rule):
         try:
             current_productions = self.productions[rule.head]
@@ -31,9 +34,7 @@ class Grammar:
             self.productions[rule.head] = [rule]
 
     def remove_rule(self, rule):
-        for i, p in enumerate(self.productions):
-            if p.head == rule.head and p.body == rule.body:
-                self.productions.pop(i)
+        self.productions[rule.head].remove(rule)
 
     def is_terminal(self, s):
         return s not in self.nonterminals
@@ -47,7 +48,7 @@ class Grammar:
         :param a: the nonterminal
         :return: list of a-productions
         """
-        return self.productions[a]
+        return [p.body for p in self.productions[a]]
 
     def first(self, x):
         """
@@ -143,11 +144,11 @@ class Grammar:
 
     def print_join_productions(self):
         for x in self.nonterminals:
-            bodies = [' '.join(p.body) for p in self.productions_for(x)]
+            bodies = [' '.join(p.body) for p in self.productions[x]]
             print("{} -> {}".format(x, ' | '.join(bodies)))
 
     def __str__(self):
-        return '\n'.join([str(p) for p in itertools.chain.from_iterable(self.productions.values())])
+        return '\n'.join([str(p) for p in self.iter_productions])
 
     def __repr__(self):
-        return '\n'.join([str(p) for p in itertools.chain.from_iterable(self.productions.values())])
+        return '\n'.join([str(p) for p in self.iter_productions])

@@ -45,7 +45,7 @@ def __normalize_productions(grammar):
     normalized_grammar = copy(grammar)
 
     for x in grammar.nonterminals:
-        for p in grammar.productions_for(x):
+        for p in grammar.productions[x]:
             if len(p.body) > 1:  # exclude productions of the form X -> ε
                 p.body = tuple([x for x in p.body if x != grammar.epsilon])
 
@@ -79,7 +79,7 @@ def remove_immediate_left_recursion(grammar, A):
     A -> b1 A' | b2 A' | ... | bn A'
     A' -> a1 A' | a2 A' | ... | am A' | ε
     """
-    productions = grammar.productions_for(A)
+    productions = grammar.productions[A]
     recursive = []
     nonrecursive = []
     new_productions = []
@@ -122,15 +122,15 @@ def remove_left_recursion(grammar):
         ai = nonterminals[i]
         for j in range(0, i):
             aj = nonterminals[j]
-            for p_ai in temp_grammar.productions_for(ai):
+            for p_ai in temp_grammar.productions[ai]:
                 # For each production of the form Ai -> Aj y
                 if p_ai.body and aj == p_ai.body[0]:
                     replaced_productions = [Rule(ai, p_aj.body + p_ai.body[1:]) for p_aj in
-                                            temp_grammar.productions_for(aj)]
+                                            temp_grammar.productions[aj]]
                     can_remove_productions = any(map(lambda x: x.is_left_recursive(), replaced_productions))
                     # Replace productions only if there were left-recursive ones
                     if can_remove_productions:
-                        temp_grammar.remove_rule(Rule(ai, p_ai))
+                        temp_grammar.remove_rule(p_ai)
                         for p in replaced_productions:
                             temp_grammar.add_rule(p)
 
@@ -225,18 +225,18 @@ def __remove_left_factoring(grammar):
             prefixes = get_prefixes(grammar, productions)
             for prefix, v in prefixes.items():
                 if (len(v) == 1):
-                    new_productions.append(Rule(nonterminal, v[0]))
+                    new_productions.append(Rule(nonterminal, tuple(v[0])))
                     continue
                 new_x = __generate_key(grammar, nonterminal)
                 body = [prefix] + [new_x]
-                new_productions.append(Rule(nonterminal, body))
+                new_productions.append(Rule(nonterminal, tuple(body)))
                 for prod in v:
                     if (prod == []):
-                        new_productions.append(Rule(new_x, [grammar.epsilon]))
+                        new_productions.append(Rule(new_x, tuple([grammar.epsilon])))
                     else:
-                        new_productions.append(Rule(new_x, prod))
+                        new_productions.append(Rule(new_x, tuple(prod)))
         else:
-            new_productions.append(Rule(nonterminal, productions[0]))
+            new_productions.append(Rule(nonterminal, tuple(productions[0])))
 
     for prod in new_productions:
         new_grammar.add_rule(prod)
