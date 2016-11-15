@@ -232,7 +232,7 @@ def __remove_left_factoring(grammar):
                 if(len(v) == 1):
                     new_productions.append(Rule(nonterminal, v[0]))
                     continue
-                new_x = generate_key(grammar, nonterminal)
+                new_x = __generate_key(grammar, nonterminal)
                 body = [prefix] + [new_x]
                 new_productions.append(Rule(nonterminal, body))
                 for prod in v:
