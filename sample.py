@@ -56,6 +56,8 @@ second_text = "E -> pa Q R | pa Q S | pa T\n" \
 third_text = "S -> i E t S | i E t S e S | a\n" \
              "E -> b"
 
+do_it(bnf_recursive)
+
 print("\n\nBefore left factoring: \n\n")
 print(third_text)
 print("\n\nLeft factoring: \n\n")

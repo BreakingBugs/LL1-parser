@@ -231,7 +231,7 @@ def __remove_left_factoring(grammar):
                 body = [prefix] + [new_x]
                 new_productions.append(Rule(nonterminal, tuple(body)))
                 for prod in v:
-                    if (prod == []):
+                    if not prod:
                         new_productions.append(Rule(new_x, tuple([grammar.epsilon])))
                     else:
                         new_productions.append(Rule(new_x, tuple(prod)))
