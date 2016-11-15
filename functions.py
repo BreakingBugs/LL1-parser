@@ -233,9 +233,19 @@ def remove_left_recursion(grammar):
     return new_grammar
 
 def check_items_equal(l):
+    """
+    Check if all items from a list are equal
+    :param grammar: input list
+    :return: True if all items are equal. False otherwise
+    """
     return l[1:] == l[:-1]
 
 def get_max_length(lst):
+    """
+    For a list of lists returns the maximum length found
+    :param grammar: input list
+    :return: Length of largest sublist
+    """
     return max(map(lambda l: len(l), lst))
 
 def get_prefixes(grammar, productions):
@@ -261,11 +271,12 @@ def get_prefixes(grammar, productions):
 
     return common
 
-def are_there_factors(lst):
-    first_elements = map(lambda l: l[0], lst)
-    return check_items_equal(first_elements)
-
 def check_left_factors(grammar):
+    """
+    Check if grammar have common left factors that appears in two or more productions of the same non-terminal
+    :param grammar: input grammar
+    :return: True if grammar have common left factors. False otherwise
+    """
     for nonterminal in grammar.nonterminals:
         productions = grammar.productions_for(nonterminal)
         if len(productions) > 1:
@@ -278,6 +289,11 @@ def check_left_factors(grammar):
     return False
 
 def remove_left_factoring(grammar):
+    """
+    Remove all the common left factors that appears in two or more productions of the same non-terminal from grammar
+    :param grammar: input grammar
+    :return: equivalent grammar with no left-factors
+    """
     g = grammar
     while(check_left_factors(g)):
         g = __remove_left_factoring(g)
