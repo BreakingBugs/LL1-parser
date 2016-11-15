@@ -22,8 +22,16 @@ class Grammar:
         self.eof = eof
 
     def add_rule(self, rule):
+        for i, p in enumerate(self.productions):
+            if p.head == rule.head and p.body == rule.body:
+                return
         self.productions.append(rule)
         self.nonterminals = self.nonterminals.union({rule.head})
+
+    def remove_rule(self, rule):
+        for i, p in enumerate(self.productions):
+            if p.head == rule.head and p.body == rule.body:
+                self.productions.pop(i)
 
     def is_terminal(self, s):
         return s not in self.nonterminals
@@ -99,7 +107,7 @@ class Grammar:
 
                 # Case 1
                 if a and b:
-                    f = f.union(self.first(b).difference({self.epsilon}))
+                    f = f.union(self.first(b) - {self.epsilon})
                 # Case 2.a
                 if a and not b:
                     f = f.union(self.follow(p.head))
@@ -171,6 +179,11 @@ def parse_bnf(text):
     return g
 
 
+# TODO: Definir un ordenamiento
+def nonterminal_ordering(grammar):
+    return [grammar.start] + list(grammar.nonterminals - {grammar.start})
+
+
 def generate_key(grammar, x):
     new_x = '{}'.format(x)
     while new_x in grammar.nonterminals:
@@ -179,40 +192,50 @@ def generate_key(grammar, x):
     return new_x
 
 
-def remove_immediate_left_recursion(grammar, x):
+def remove_immediate_left_recursion(grammar, A):
     """
-    Remove immediante left-recursion for given nonterminal
+    Remove immediate left-recursion for given nonterminal
     :param grammar: input grammar
-    :param x: the nonterminal
+    :param A: the nonterminal
     :return: list of equivalent productions. If there are no left-recursions, the productions aren't changed.
+
+
+    For each production:
+    A -> A a1 | A a2 | ... | A am | b1 | b2 | ... | bn
+
+    Replace with:
+    A -> b1 A' | b2 A' | ... | bn A'
+    A' -> a1 A' | a2 A' | ... | am A' | ε
     """
-    productions = grammar.productions_for(x)
+    productions = grammar.productions_for(A)
     recursive = []
     nonrecursive = []
     new_productions = []
+
     for p in productions:
-        if p and x == p[0]:
+        if p and A == p[0]:
             recursive.append(p)
         else:
             nonrecursive.append(p)
 
     if not recursive:
-        return [Rule(x, p) for p in productions]
+        return [Rule(A, p) for p in productions]  # Return same productions
 
-    new_x = generate_key(grammar, x)
-    for p in nonrecursive:
-        body = p + [new_x]  # A -> bA'
-        new_productions.append(Rule(x, body))
+    new_A = generate_key(grammar, A)
+    for b in nonrecursive:
+        # A -> b1 A' | ... | bn A'
+        new_productions.append(Rule(A, b + [new_A]))
 
-    for p in recursive:
-        body = p[1:] + [new_x]  # A' -> aA' | ε
-        new_productions.append(Rule(new_x, body))
-        new_productions.append(Rule(new_x, grammar.epsilon))
+    for a in recursive:
+        # A' -> a1 A' | a2 A' | ... | am A'
+        new_productions.append(Rule(new_A, a[1:] + [new_A]))
+
+    # A' -> ε
+    new_productions.append(Rule(new_A, grammar.epsilon))
 
     return new_productions
 
 
-# TODO: remove indirect recursion
 def remove_left_recursion(grammar):
     """
     Remove all left recursions from grammar
@@ -220,10 +243,37 @@ def remove_left_recursion(grammar):
     :return: equivalent grammar with no left-recursion
     """
     new_grammar = Grammar(start=grammar.start, epsilon=grammar.epsilon, eof=grammar.eof)
+    nonterminals = nonterminal_ordering(grammar)
 
-    for nonterminal in grammar.nonterminals:
-        new_productions = remove_immediate_left_recursion(grammar, nonterminal)
+    for i in range(0, len(nonterminals)):
+        ai = nonterminals[i]
+        for j in range(0, i):
+            aj = nonterminals[j]
+            for p_ai in grammar.productions_for(ai):
+                # For each production of the form Ai -> Aj y
+                if p_ai and aj == p_ai[0]:
+                    for p_aj in grammar.productions_for(aj):
+                        grammar.remove_rule(Rule(ai, p_ai))
+                        grammar.add_rule(Rule(ai, p_aj + p_ai[1:]))
+
+        new_productions = remove_immediate_left_recursion(grammar, ai)
         for p in new_productions:
             new_grammar.add_rule(p)
 
     return new_grammar
+
+
+def normalize_productions(grammar):
+    """
+    Remove empty symbols from productions
+    :param grammar: input grammar
+    :return: normalized grammar
+    """
+    normalized_grammar = Grammar(productions=grammar.productions, start=grammar.start,
+                                 epsilon=grammar.epsilon, eof=grammar.eof)
+
+    for p in grammar.productions:
+        if len(p.body) > 1:  # exclude productions of the form X -> ε
+            p.body = [x for x in p.body if x != grammar.epsilon]
+
+    return normalized_grammar
