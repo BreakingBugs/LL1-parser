@@ -27,11 +27,11 @@ for nt in g.nonterminals:
     print('FIRST({}) = {}'.format(nt, g.first(nt)))
 print()
 
-# for nt in g.nonterminals:
-#     print('FOLLOW({}) = {}'.format(nt, g.follow(nt)))
-# print()
-#
-# table = g.parsing_table()
+for nt in g.nonterminals:
+    print('FOLLOW({}) = {}'.format(nt, g.follow(nt)))
+print()
+
+#  table = g.parsing_table()
 # print("Parsing Table: ")
 # for k, v in table.items():
 #     print("{}: {}".format(k, v))

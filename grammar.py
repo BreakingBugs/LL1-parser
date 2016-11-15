@@ -101,7 +101,7 @@ class Grammar:
         if self.is_start_symbol(nonterminal):
             f.add(self.eof)
 
-        for p in self.productions:
+        for p in self.iter_productions():
             if nonterminal in p.body:
                 position = p.body.index(nonterminal)
                 a = p.body[0:position]
@@ -109,7 +109,7 @@ class Grammar:
 
                 # Case 1
                 if a and b:
-                    f = f.union(self.first(b) - {self.epsilon})
+                    f = f.union(set(self.first(b)) - {self.epsilon})
                 # Case 2.a
                 if a and not b:
                     f = f.union(self.follow(p.head))
