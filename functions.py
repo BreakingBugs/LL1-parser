@@ -151,11 +151,20 @@ def remove_left_recursion(grammar):
 
 
 def check_items_equal(l):
+    """
+    Check if all items from a list are equal
+    :param grammar: input list
+    :return: True if all items are equal. False otherwise
+    """
     return l[1:] == l[:-1]
 
-
 def get_max_length(lst):
-    return max(map(lambda l: len(l), lst))
+    """
+    For a list of lists returns the maximum length found
+    :param grammar: input list
+    :return: Length of largest sublist
+    """
+    return max([len(l) for l in lst])
 
 
 def get_prefixes(grammar, productions):
@@ -166,28 +175,27 @@ def get_prefixes(grammar, productions):
             common.setdefault(x[0], []).append(x)
     for k, v in common.items():
         common_index = 1
-        sublist = map(lambda l: l[0:common_index + 1], v)
+        sublist = [l[0:common_index+1] for l in v]
         while check_items_equal(sublist) and common_index < get_max_length(v):
             common_index += 1
-            sublist = map(lambda l: l[0:common_index + 1], v)
+            sublist = [l[0:common_index+1] for l in v]
         common_index = common_index - 1
-        if (len(v) > 1):
-            common[k] = map(lambda l: l[common_index + 1:], v)
+        if(len(v)>1):
+            common[k] = [l[common_index+1:] for l in v]
         if common_index > 0:
-            common[k] = map(lambda l: l[common_index + 1:], v)
-            final_key = ' '.join(v[0][0:common_index + 1])
+            common[k] = [l[common_index+1:] for l in v]
+            final_key = ' '.join(v[0][0:common_index+1])
             common[final_key] = common[k]
             del common[k]
 
     return common
 
-
-def are_there_factors(lst):
-    first_elements = map(lambda l: l[0], lst)
-    return check_items_equal(first_elements)
-
-
 def check_left_factors(grammar):
+    """
+    Check if grammar have common left factors that appears in two or more productions of the same non-terminal
+    :param grammar: input grammar
+    :return: True if grammar have common left factors. False otherwise
+    """
     for nonterminal in grammar.nonterminals:
         productions = grammar.productions_for(nonterminal)
         if len(productions) > 1:
@@ -199,13 +207,16 @@ def check_left_factors(grammar):
                     return True
     return False
 
-
 def remove_left_factoring(grammar):
+    """
+    Remove all the common left factors that appears in two or more productions of the same non-terminal from grammar
+    :param grammar: input grammar
+    :return: equivalent grammar with no left-factors
+    """
     g = grammar
-    while (check_left_factors(g)):
+    while(check_left_factors(g)):
         g = __remove_left_factoring(g)
     return g
-
 
 def __remove_left_factoring(grammar):
     new_grammar = Grammar(start=grammar.start, epsilon=grammar.epsilon, eof=grammar.eof)
@@ -218,14 +229,14 @@ def __remove_left_factoring(grammar):
         if len(productions) > 1:
             prefixes = get_prefixes(grammar, productions)
             for prefix, v in prefixes.items():
-                if (len(v) == 1):
+                if(len(v) == 1):
                     new_productions.append(Rule(nonterminal, v[0]))
                     continue
-                new_x = __generate_key(grammar, nonterminal)
+                new_x = generate_key(grammar, nonterminal)
                 body = [prefix] + [new_x]
                 new_productions.append(Rule(nonterminal, body))
                 for prod in v:
-                    if (prod == []):
+                    if(prod == []):
                         new_productions.append(Rule(new_x, [grammar.epsilon]))
                     else:
                         new_productions.append(Rule(new_x, prod))
