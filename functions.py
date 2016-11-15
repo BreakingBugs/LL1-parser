@@ -118,7 +118,12 @@ class Grammar:
                 if not self.is_terminal(t):
                     continue
                 if t == self.epsilon:
-                    pass  # TODO Add elements from FOLLOW
+                    f = self.follow(r.head)
+                    for ef in f:
+                        if(table.get((r.head, ef))):
+                            pass #TODO Ambiguity found
+                        else:
+                            table[(r.head, ef)] = r
                 else:
                     if (table.get((r.head, t))):
                         pass  # TODO Ambiguity found
