@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from functions import Grammar, parse_bnf, remove_left_recursion, remove_left_factoring, check_left_factors
+from functions import Grammar, parse_bnf, remove_left_recursion, remove_left_factoring
 
 bnf_text = "E -> T E'\n" \
            "E' -> + T E' | ε\n" \

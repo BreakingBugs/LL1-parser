@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from os.path import commonprefix
 
 class Rule:
     def __init__(self, head, body):
