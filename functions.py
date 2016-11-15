@@ -4,7 +4,7 @@ from rule import Rule
 from copy import copy
 
 
-def parse_bnf(text):
+def parse_bnf(text, epsilon='ε', eof='$'):
     """
     Parse BNF from text
 
@@ -24,7 +24,7 @@ def parse_bnf(text):
     """
     productions = text.strip().split('\n')
     start = productions[0].split('->')[0].strip()  # First rule as starting symbol
-    g = Grammar(start=start)
+    g = Grammar(start=start, epsilon=epsilon, eof=eof)
 
     for r in productions:
         head, body = [x.strip() for x in r.split('->')]
@@ -103,7 +103,7 @@ def remove_immediate_left_recursion(grammar, A):
         new_productions.append(Rule(new_A, a[1:] + (new_A,)))
 
     # A' -> ε
-    new_productions.append(Rule(new_A, grammar.epsilon))
+    new_productions.append(Rule(new_A, (grammar.epsilon,)))
 
     return new_productions
 

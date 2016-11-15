@@ -1,6 +1,35 @@
 # -*- coding: utf-8 -*-
 
-from functions import Grammar, parse_bnf, remove_left_recursion, remove_left_factoring
+from functions import parse_bnf, remove_left_recursion, remove_left_factoring
+
+
+def do_it(grammar_text):
+    print("Original:")
+    g = parse_bnf(grammar_text)
+    g.print_join_productions()
+
+    print("\nAfter removing left-recursion:")
+    g = remove_left_recursion(g)
+    g.print_join_productions()
+
+    print("\nAfter removing left-factoring:")
+    g = remove_left_factoring(g)
+    g.print_join_productions()
+
+    print()
+    for nt in g.nonterminals:
+        print('FIRST({}) = {}'.format(nt, g.first(nt)))
+
+    print()
+    for nt in g.nonterminals:
+        print('FOLLOW({}) = {}'.format(nt, g.follow(nt)))
+
+    print()
+    table = g.parsing_table()
+    print("Parsing Table:")
+    for k, v in table.items():
+        print("{}: {}".format(k, v))
+
 
 bnf_text = "E -> T E'\n" \
            "E' -> + T E' | ε\n" \
@@ -15,26 +44,7 @@ bnf_recursive = "E -> E + T | T\n" \
                 "T -> T * F | F\n" \
                 "F -> ( E ) | id"
 
-print("Before removing left-recursion")
-g = parse_bnf(bnf_recursive)
-g.print_join_productions()
-
-print("\nAfter removing left-recursion")
-g = remove_left_recursion(g)
-g.print_join_productions()
-#
-for nt in g.nonterminals:
-    print('FIRST({}) = {}'.format(nt, g.first(nt)))
-print()
-
-for nt in g.nonterminals:
-    print('FOLLOW({}) = {}'.format(nt, g.follow(nt)))
-print()
-
-table = g.parsing_table()
-print("Parsing Table: ")
-for k, v in table.items():
-    print("{}: {}".format(k, v))
+do_it(bnf_recursive)
 
 second_text = "E -> pa Q R | pa Q S | pa T\n" \
               "U -> e"
