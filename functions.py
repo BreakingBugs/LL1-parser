@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from grammar import Grammar
 from rule import Rule
+from copy import copy
 
 
 def parse_bnf(text):
@@ -28,7 +29,7 @@ def parse_bnf(text):
     for r in productions:
         head, body = [x.strip() for x in r.split('->')]
         productions = [p.strip() for p in body.split('|')]
-        productions_tokenized = [p.split() for p in productions]
+        productions_tokenized = [tuple(p.split()) for p in productions]
         for p in productions_tokenized:
             g.add_rule(Rule(head, p))
 
@@ -41,37 +42,27 @@ def __normalize_productions(grammar):
     :param grammar: input grammar
     :return: normalized grammar
     """
-    normalized_grammar = Grammar(productions=grammar.productions[::], start=grammar.start,
-                                 epsilon=grammar.epsilon, eof=grammar.eof)
+    normalized_grammar = copy(grammar)
 
-    for p in grammar.productions:
-        if len(p.body) > 1:  # exclude productions of the form X -> ε
-            p.body = [x for x in p.body if x != grammar.epsilon]
+    for x in grammar.nonterminals:
+        for p in grammar.productions_for(x):
+            if len(p.body) > 1:  # exclude productions of the form X -> ε
+                p.body = tuple([x for x in p.body if x != grammar.epsilon])
 
     return normalized_grammar
 
 
 # TODO: Definir un ordenamiento
 def nonterminal_ordering(grammar):
-    return [grammar.start] + list(grammar.nonterminals - {grammar.start})
+    return [x for x in grammar.nonterminals]
 
 
 def __generate_key(grammar, x):
     new_x = x
     while new_x in grammar.nonterminals:
-        new_x += '\''
+        new_x += "'"
 
     return new_x
-
-
-def is_left_recursive(head, body):
-    """
-    Check if production is left-recursive (immediate)
-    :param head: right side of production
-    :param body: left side of production
-    :return: True if production is left-recursive, False otherwise
-    """
-    return body and head == body[0]
 
 
 def remove_immediate_left_recursion(grammar, A):
@@ -94,22 +85,22 @@ def remove_immediate_left_recursion(grammar, A):
     new_productions = []
 
     for p in productions:
-        if is_left_recursive(A, p):
-            recursive.append(p)
+        if p.is_left_recursive():
+            recursive.append(p.body)
         else:
-            nonrecursive.append(p)
+            nonrecursive.append(p.body)
 
     if not recursive:
-        return [Rule(A, p) for p in productions]  # Return same productions
+        return productions
 
     new_A = __generate_key(grammar, A)
     for b in nonrecursive:
         # A -> b1 A' | ... | bn A'
-        new_productions.append(Rule(A, b + [new_A]))
+        new_productions.append(Rule(A, b + (new_A,)))
 
     for a in recursive:
         # A' -> a1 A' | a2 A' | ... | am A'
-        new_productions.append(Rule(new_A, a[1:] + [new_A]))
+        new_productions.append(Rule(new_A, a[1:] + (new_A,)))
 
     # A' -> ε
     new_productions.append(Rule(new_A, grammar.epsilon))
@@ -123,8 +114,7 @@ def remove_left_recursion(grammar):
     :param grammar: input grammar
     :return: equivalent grammar with no left-recursions
     """
-    temp_grammar = Grammar(productions=grammar.productions[::], start=grammar.start,
-                           epsilon=grammar.epsilon, eof=grammar.eof)
+    temp_grammar = copy(grammar)
     new_grammar = Grammar(start=grammar.start, epsilon=grammar.epsilon, eof=grammar.eof)
     nonterminals = nonterminal_ordering(grammar)
 
@@ -134,9 +124,10 @@ def remove_left_recursion(grammar):
             aj = nonterminals[j]
             for p_ai in temp_grammar.productions_for(ai):
                 # For each production of the form Ai -> Aj y
-                if p_ai and aj == p_ai[0]:
-                    replaced_productions = [Rule(ai, p_aj + p_ai[1:]) for p_aj in temp_grammar.productions_for(aj)]
-                    can_remove_productions = any(map(lambda x: is_left_recursive(x.head, x.body), replaced_productions))
+                if p_ai.body and aj == p_ai.body[0]:
+                    replaced_productions = [Rule(ai, p_aj.body + p_ai.body[1:]) for p_aj in
+                                            temp_grammar.productions_for(aj)]
+                    can_remove_productions = any(map(lambda x: x.is_left_recursive(), replaced_productions))
                     # Replace productions only if there were left-recursive ones
                     if can_remove_productions:
                         temp_grammar.remove_rule(Rule(ai, p_ai))
@@ -158,6 +149,7 @@ def check_items_equal(l):
     """
     return l[1:] == l[:-1]
 
+
 def get_max_length(lst):
     """
     For a list of lists returns the maximum length found
@@ -175,20 +167,21 @@ def get_prefixes(grammar, productions):
             common.setdefault(x[0], []).append(x)
     for k, v in common.items():
         common_index = 1
-        sublist = [l[0:common_index+1] for l in v]
+        sublist = [l[0:common_index + 1] for l in v]
         while check_items_equal(sublist) and common_index < get_max_length(v):
             common_index += 1
-            sublist = [l[0:common_index+1] for l in v]
+            sublist = [l[0:common_index + 1] for l in v]
         common_index = common_index - 1
-        if(len(v)>1):
-            common[k] = [l[common_index+1:] for l in v]
+        if (len(v) > 1):
+            common[k] = [l[common_index + 1:] for l in v]
         if common_index > 0:
-            common[k] = [l[common_index+1:] for l in v]
-            final_key = ' '.join(v[0][0:common_index+1])
+            common[k] = [l[common_index + 1:] for l in v]
+            final_key = ' '.join(v[0][0:common_index + 1])
             common[final_key] = common[k]
             del common[k]
 
     return common
+
 
 def check_left_factors(grammar):
     """
@@ -207,6 +200,7 @@ def check_left_factors(grammar):
                     return True
     return False
 
+
 def remove_left_factoring(grammar):
     """
     Remove all the common left factors that appears in two or more productions of the same non-terminal from grammar
@@ -214,9 +208,10 @@ def remove_left_factoring(grammar):
     :return: equivalent grammar with no left-factors
     """
     g = grammar
-    while(check_left_factors(g)):
+    while (check_left_factors(g)):
         g = __remove_left_factoring(g)
     return g
+
 
 def __remove_left_factoring(grammar):
     new_grammar = Grammar(start=grammar.start, epsilon=grammar.epsilon, eof=grammar.eof)
@@ -229,14 +224,14 @@ def __remove_left_factoring(grammar):
         if len(productions) > 1:
             prefixes = get_prefixes(grammar, productions)
             for prefix, v in prefixes.items():
-                if(len(v) == 1):
+                if (len(v) == 1):
                     new_productions.append(Rule(nonterminal, v[0]))
                     continue
                 new_x = __generate_key(grammar, nonterminal)
                 body = [prefix] + [new_x]
                 new_productions.append(Rule(nonterminal, body))
                 for prod in v:
-                    if(prod == []):
+                    if (prod == []):
                         new_productions.append(Rule(new_x, [grammar.epsilon]))
                     else:
                         new_productions.append(Rule(new_x, prod))

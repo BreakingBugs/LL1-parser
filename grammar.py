@@ -1,20 +1,34 @@
 # -*- coding: utf-8 -*-
+from collections import OrderedDict
+
+import itertools
 
 
 class Grammar:
     def __init__(self, productions=None, start=None, epsilon='ε', eof='$'):
-        self.productions = productions if productions else []
+        self.productions = productions if productions else OrderedDict()
         self.start = start
-        self.nonterminals = {p.head for p in self.productions}
         self.epsilon = epsilon
         self.eof = eof
 
+    def __copy__(self):
+        g = Grammar(start=self.start, epsilon=self.epsilon, eof=self.eof)
+        for h, b in self.productions.items():
+            g.productions[h] = b
+
+        return g
+
+    @property
+    def nonterminals(self):
+        return self.productions.keys()
+
     def add_rule(self, rule):
-        for i, p in enumerate(self.productions):
-            if p.head == rule.head and p.body == rule.body:
-                return
-        self.productions.append(rule)
-        self.nonterminals = self.nonterminals.union({rule.head})
+        try:
+            current_productions = self.productions[rule.head]
+            if rule not in current_productions:
+                current_productions.append(rule)
+        except KeyError:
+            self.productions[rule.head] = [rule]
 
     def remove_rule(self, rule):
         for i, p in enumerate(self.productions):
@@ -33,8 +47,7 @@ class Grammar:
         :param a: the nonterminal
         :return: list of a-productions
         """
-        a_productions = [r.body for r in self.productions if r.head == a]
-        return a_productions
+        return self.productions[a]
 
     def first(self, x):
         """
@@ -130,11 +143,11 @@ class Grammar:
 
     def print_join_productions(self):
         for x in self.nonterminals:
-            bodies = [' '.join(p) for p in self.productions_for(x)]
+            bodies = [' '.join(p.body) for p in self.productions_for(x)]
             print("{} -> {}".format(x, ' | '.join(bodies)))
 
     def __str__(self):
-        return '\n'.join([str(p) for p in self.productions])
+        return '\n'.join([str(p) for p in itertools.chain.from_iterable(self.productions.values())])
 
     def __repr__(self):
-        return '\n'.join([repr(p) for p in self.productions])
+        return '\n'.join([str(p) for p in itertools.chain.from_iterable(self.productions.values())])
