@@ -31,11 +31,11 @@ for nt in g.nonterminals:
     print('FOLLOW({}) = {}'.format(nt, g.follow(nt)))
 print()
 
-#  table = g.parsing_table()
-# print("Parsing Table: ")
-# for k, v in table.items():
-#     print("{}: {}".format(k, v))
-#
+table = g.parsing_table()
+print("Parsing Table: ")
+for k, v in table.items():
+    print("{}: {}".format(k, v))
+
 second_text = "E -> pa Q R | pa Q S | pa T\n" \
               "U -> e"
 

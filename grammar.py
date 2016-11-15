@@ -123,7 +123,7 @@ class Grammar:
 
     def parsing_table(self):
         table = {}
-        for r in self.productions:
+        for r in self.iter_productions():
             terminals = self.first(r.body)
             for t in terminals:
                 if not self.is_terminal(t):
