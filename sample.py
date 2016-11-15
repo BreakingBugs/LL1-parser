@@ -23,10 +23,10 @@ print("\nAfter removing left-recursion")
 g = remove_left_recursion(g)
 g.print_join_productions()
 #
-# for nt in g.nonterminals:
-#     print('FIRST({}) = {}'.format(nt, g.first(nt)))
-# print()
-#
+for nt in g.nonterminals:
+    print('FIRST({}) = {}'.format(nt, g.first(nt)))
+print()
+
 # for nt in g.nonterminals:
 #     print('FOLLOW({}) = {}'.format(nt, g.follow(nt)))
 # print()

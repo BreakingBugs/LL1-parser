@@ -60,7 +60,7 @@ class Grammar:
         :return: FIRST set
         """
         f = set()
-        if isinstance(x, list):
+        if isinstance(x, tuple):
             f = self.first_multiple(x)
         elif self.is_terminal(x):
             f = {x}  # Rule 1 and 2
@@ -68,7 +68,7 @@ class Grammar:
             for p in self.productions_for(x):
                 f = f.union(self.first(p))
 
-        return f
+        return sorted(f)
 
     def first_multiple(self, tokens):
         """
@@ -119,7 +119,7 @@ class Grammar:
                     f = f.union(self.follow(p.head))
                     break
 
-        return f
+        return sorted(f)
 
     def parsing_table(self):
         table = {}
