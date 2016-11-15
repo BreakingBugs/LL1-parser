@@ -240,4 +240,4 @@ def __remove_left_factoring(grammar):
 
     for prod in new_productions:
         new_grammar.add_rule(prod)
-    return new_grammar
+    return __normalize_productions(new_grammar)

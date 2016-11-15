@@ -123,6 +123,7 @@ class Grammar:
 
     def parsing_table(self):
         table = {}
+        ambigous = False
         for r in self.iter_productions():
             terminals = self.first(r.body)
             for t in terminals:
@@ -132,15 +133,23 @@ class Grammar:
                     f = self.follow(r.head)
                     for ef in f:
                         if (table.get((r.head, ef))):
-                            pass  # TODO Ambiguity found
+                            ls = []
+                            ls.append(table[(r.head, ef)])
+                            ls.append(r)
+                            table[(r.head, ef)] = ls
+                            ambigous = True
                         else:
                             table[(r.head, ef)] = r
                 else:
                     if (table.get((r.head, t))):
-                        pass  # TODO Ambiguity found
+                        ls = []
+                        ls.append(table[(r.head, t)])
+                        ls.append(r)
+                        table[(r.head, t)] = ls
+                        ambigous = True
                     else:
                         table[(r.head, t)] = r
-        return table
+        return (table, ambigous)
 
     def print_join_productions(self):
         for x in self.nonterminals:
