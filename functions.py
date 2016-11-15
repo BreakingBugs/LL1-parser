@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-
 class Rule:
     def __init__(self, head, body):
         self.head = head
@@ -127,7 +126,12 @@ class Grammar:
                 if not self.is_terminal(t):
                     continue
                 if t == self.epsilon:
-                    pass  # TODO Add elements from FOLLOW
+                    f = self.follow(r.head)
+                    for ef in f:
+                        if(table.get((r.head, ef))):
+                            pass #TODO Ambiguity found
+                        else:
+                            table[(r.head, ef)] = r
                 else:
                     if (table.get((r.head, t))):
                         pass  # TODO Ambiguity found
@@ -198,7 +202,6 @@ def remove_immediate_left_recursion(grammar, A):
     :param grammar: input grammar
     :param A: the nonterminal
     :return: list of equivalent productions. If there are no left-recursions, the productions aren't changed.
-
 
     For each production:
     A -> A a1 | A a2 | ... | A am | b1 | b2 | ... | bn
@@ -277,3 +280,83 @@ def normalize_productions(grammar):
             p.body = [x for x in p.body if x != grammar.epsilon]
 
     return normalized_grammar
+
+def check_items_equal(l):
+    return l[1:] == l[:-1]
+
+def get_max_length(lst):
+    return max(map(lambda l: len(l), lst))
+
+def get_prefixes(grammar, productions):
+    common = {}
+    sorted_productions = sorted(productions)
+    for x in sorted_productions:
+        if x:
+            common.setdefault(x[0], []).append(x)
+    for k, v in common.items():
+        common_index = 1
+        sublist = map(lambda l: l[0:common_index+1], v)
+        while check_items_equal(sublist) and common_index < get_max_length(v):
+            common_index += 1
+            sublist = map(lambda l: l[0:common_index+1], v)
+        common_index = common_index - 1
+        if(len(v)>1):
+            common[k] = map(lambda l: l[common_index+1:], v)
+        if common_index > 0:
+            common[k] = map(lambda l: l[common_index+1:], v)
+            final_key = ' '.join(v[0][0:common_index+1])
+            common[final_key] = common[k]
+            del common[k]
+
+    return common
+
+def are_there_factors(lst):
+    first_elements = map(lambda l: l[0], lst)
+    return check_items_equal(first_elements)
+
+def check_left_factors(grammar):
+    for nonterminal in grammar.nonterminals:
+        productions = grammar.productions_for(nonterminal)
+        if len(productions) > 1:
+            first_elements = [l[0] for l in productions]
+            result = check_items_equal(first_elements)
+            diff_vals = set(first_elements)
+            for i in diff_vals:
+                if first_elements.count(i) > 1:
+                    return True
+    return False
+
+def remove_left_factoring(grammar):
+    g = grammar
+    while(check_left_factors(g)):
+        g = __remove_left_factoring(g)
+    return g
+
+def __remove_left_factoring(grammar):
+    new_grammar = Grammar(start=grammar.start, epsilon=grammar.epsilon, eof=grammar.eof)
+
+    new_productions = []
+
+    for nonterminal in grammar.nonterminals:
+
+        productions = grammar.productions_for(nonterminal)
+        if len(productions) > 1:
+            prefixes = get_prefixes(grammar, productions)
+            for prefix, v in prefixes.items():
+                if(len(v) == 1):
+                    new_productions.append(Rule(nonterminal, v[0]))
+                    continue
+                new_x = generate_key(grammar, nonterminal)
+                body = [prefix] + [new_x]
+                new_productions.append(Rule(nonterminal, body))
+                for prod in v:
+                    if(prod == []):
+                        new_productions.append(Rule(new_x, [grammar.epsilon]))
+                    else:
+                        new_productions.append(Rule(new_x, prod))
+        else:
+            new_productions.append(Rule(nonterminal, productions[0]))
+
+    for prod in new_productions:
+        new_grammar.add_rule(prod)
+    return new_grammar
