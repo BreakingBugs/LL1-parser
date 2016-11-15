@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from functions import Grammar, parse_bnf, remove_left_recursion, remove_left_factoring
+from functions import parse_bnf, remove_left_recursion, remove_left_factoring
 
 bnf_text = "E -> T E'\n" \
            "E' -> + T E' | ε\n" \
@@ -14,6 +14,10 @@ indirect_recursive = "S -> A a | b\n" \
 bnf_recursive = "E -> E + T | T\n" \
                 "T -> T * F | F\n" \
                 "F -> ( E ) | id"
+
+ambigous_text = "S -> A | B\n" \
+           "A -> a A b | ε\n" \
+           "B -> a B b b | ε"
 
 g = parse_bnf(bnf_recursive)
 g = remove_left_recursion(g)
@@ -31,20 +35,24 @@ for nt in g.nonterminals:
     print('FOLLOW({}) = {}'.format(nt, g.follow(nt)))
 print()
 
-table = g.parsing_table()
+
+table, ambigous = g.parsing_table()
 print("Parsing Table: ")
 for k, v in table.items():
     print("{}: {}".format(k, v))
+if ambigous:
+    print("El lenguaje de entrada no es LL(1) debido a que se encontraron ambigüedades.")
 
 second_text = "E -> pa Q R | pa Q S | pa T\n" \
               "U -> e"
 
 third_text = "S -> i E t S | i E t S e S | a\n" \
              "E -> b"
+
 print("\n\nBefore left factoring: \n\n")
-print(second_text)
+print(third_text)
 print("\n\nLeft factoring: \n\n")
-g2 = parse_bnf(second_text)
+g2 = parse_bnf(third_text)
 g2 = remove_left_factoring(g2)
 g2.print_join_productions()
 
