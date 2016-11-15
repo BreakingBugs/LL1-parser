@@ -246,7 +246,7 @@ def get_max_length(lst):
     :param grammar: input list
     :return: Length of largest sublist
     """
-    return max(map(lambda l: len(l), lst))
+    return max([len(l) for l in lst])
 
 def get_prefixes(grammar, productions):
     common = {}
@@ -256,15 +256,15 @@ def get_prefixes(grammar, productions):
             common.setdefault(x[0], []).append(x)
     for k, v in common.items():
         common_index = 1
-        sublist = map(lambda l: l[0:common_index+1], v)
+        sublist = [l[0:common_index+1] for l in v]
         while check_items_equal(sublist) and common_index < get_max_length(v):
             common_index += 1
-            sublist = map(lambda l: l[0:common_index+1], v)
+            sublist = [l[0:common_index+1] for l in v]
         common_index = common_index - 1
         if(len(v)>1):
-            common[k] = map(lambda l: l[common_index+1:], v)
+            common[k] = [l[common_index+1:] for l in v]
         if common_index > 0:
-            common[k] = map(lambda l: l[common_index+1:], v)
+            common[k] = [l[common_index+1:] for l in v]
             final_key = ' '.join(v[0][0:common_index+1])
             common[final_key] = common[k]
             del common[k]
