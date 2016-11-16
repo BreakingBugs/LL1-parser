@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+
+{% macro display_grammar(grammar, title='Gramática', width=4) -%}
+  <div class="col-md-{{ width }}">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">{{ title }}</h3>
+      </div>
+      <div class="panel-body">
+        {% for nt in grammar.nonterminals %}
+          <div class="row production">
+            <div class="col-sm-offset-2 col-sm-2">{{ nt }}</div>
+            <div class="col-sm-2">&rarr;</div>
+            <div class="col-sm-4">
+              {{ grammar.productions_for_string(nt)|join(' | ') }}
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+{%- endmacro %}
+
+{% macro display_first(grammar, title='FIRST Set') %}
+  <div class="col-md-12">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">{{ title }}</h3>
+      </div>
+      <div class="panel-body">
+        {% for nt in grammar.nonterminals %}
+          <div class="row production">
+            <div class="col-sm-offset-3 col-sm-2">FIRST({{ nt }})</div>
+            <div class="col-sm-2">=</div>
+            <div class="col-sm-2">
+              { {{ grammar.first(nt)|join(', ') }} }
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+{%- endmacro %}
+
+{% macro display_follow(grammar, title='FOLLOW Set') %}
+  <div class="col-md-12">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">{{ title }}</h3>
+      </div>
+      <div class="panel-body">
+        {% for nt in grammar.nonterminals %}
+          <div class="row production">
+            <div class="col-sm-offset-3 col-sm-2">FOLLOW({{ nt }})</div>
+            <div class="col-sm-2">=</div>
+            <div class="col-sm-2">
+              { {{ grammar.follow(nt)|join(', ') }} }
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+{%- endmacro %}
+
+{% block content %}
+  <h1>TP Compiladores</h1>
+  {% for e in errors %}
+    <div class="alert alert-danger" role="alert">
+      <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+      <span class="sr-only">Error:</span>
+      {{ e }}
+    </div>
+  {% endfor %}
+
+  <div class="row">
+    {{ display_grammar(grammar, 'Gramática original') }}
+    {{ display_grammar(no_recursion, 'Gramática sin recursividad por izquierda') }}
+    {{ display_grammar(no_factor, 'Gramática sin factor común por izquierda') }}
+  </div>
+
+  <div class="row">
+    {{ display_first(no_factor, 'Conjunto Primero') }}
+  </div>
+
+  <div class="row">
+    {{ display_follow(no_factor, 'Conjunto Siguiente') }}
+  </div>
+
+
+{% endblock %}

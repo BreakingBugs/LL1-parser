@@ -1,0 +1,13 @@
+body {
+    padding-top: 50px;
+}
+
+.starter-template {
+    padding: 40px 15px;
+    text-align: center;
+}
+
+.production {
+    font-family: "Times New Roman", Times, serif;
+    font-size: 20px;
+}

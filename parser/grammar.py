@@ -195,6 +195,11 @@ class Grammar:
             bodies = [' '.join(p.body) for p in self.productions[x]]
             print("{} -> {}".format(x, ' | '.join(bodies)))
 
+    def productions_for_string(self, x):
+        s = [' '.join(p.body) for p in self.productions[x]]
+        print(s)
+        return s
+
     def clear_cache(self):
         self.follow.cache_clear()
 
