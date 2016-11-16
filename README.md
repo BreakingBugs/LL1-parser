@@ -13,11 +13,25 @@ Genera un Analizador Predictivo para Gramáticas LL(1).
 
 ```bash
 $ git clone git@github.com:BreakingBugs/LL1-parser.git
-$ parser "A -> hola | mundo"
+$ python parse.py "A -> hola | mundo"
 ```
 
 
-## Basic usage
+## CLI Usage
+```bash
+# Generate parsing table
+$ python parse.py "A -> hola | mundo"
+
+# Generate parsing table and display intermediate process
+$ python parse.py "A -> hola | mundo" -v
+
+# Read grammar from file and write output to file
+$ python parse.py -i grammar.txt -o table.txt
+```
+
+![cli](http://imgur.com/3vDx2Hq.png)
+
+## API
 
 ```python
 from parser.functions import parse_bnf, remove_left_recursion, remove_left_factoring, pprint_table
