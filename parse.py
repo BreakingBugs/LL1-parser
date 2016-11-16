@@ -38,8 +38,6 @@ def do_the_whole_thing(grammar_text, output=None, verbose=True):
     vprint()
     table, ambiguous = g.parsing_table()
     vprint("Parsing Table: ")
-    for k, v in table.items():
-        vprint("{}: {}".format(k, v))
     if ambiguous:
         vprint("El lenguaje de entrada no es LL(1) debido a que se encontraron ambigüedades.")
 
@@ -51,6 +49,10 @@ def do_the_whole_thing(grammar_text, output=None, verbose=True):
 
 
 def main(productions, input, output, verbose):
+    if input:
+        with open(input, 'r') as f:
+            productions = [l.strip() for l in f.readlines()]
+
     do_the_whole_thing('\n'.join(productions), output=output, verbose=verbose)
 
 
