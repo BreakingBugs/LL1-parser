@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block nav %}
+  <ul class="nav navbar-nav">
+    <li><a href="/">Home</a></li>
+    <li class="active"><a href="/about">About</a></li>
+  </ul>
+{% endblock %}
+
+{% block content %}
+  <div class="jumbotron">
+    <h1>LL(1) Parser</h1>
+    <p class="lead">Construir un programa que sea capaz de validar que un lenguaje de entrada sea o no LL(1).
+      En caso negativo, aplicar las técnicas desarrolladas para tratar de obtener un lenguaje LL(1) equivalente.</p>
+  </div>
+
+  <div class="row">
+    <h2>Autores</h2>
+    <div class="col-lg-offset-3 col-lg-3">
+      <h4>Jordan Ayala</h4>
+      <p>Ingeniería en Informática</p>
+      <p>Facultad Politécnica - UNA</p>
+    </div>
+    <div class="col-lg-3">
+      <h4>Guillermo Peralta</h4>
+      <p>Ingeniería en Informática</p>
+      <p>Facultad Politécnica - UNA</p>
+    </div>
+  </div>
+
+  <div class="row">
+    <h2>Referencias</h2>
+    <p>Compilers: Principles, Techniques, and Tools - Alfred Aho, Jeffrey Ullman, Monica S. Lam, and Ravi Sethi</p>
+  </div>
+{% endblock %}

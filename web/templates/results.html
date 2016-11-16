@@ -1,109 +1,123 @@
 {% extends 'base.html' %}
 
 {% macro display_grammar(grammar, title='Gramática', width=4) -%}
-  <div class="col-md-{{ width }}">
-    <div class="panel panel-default">
-      <div class="panel-heading">
-        <h3 class="panel-title">{{ title }}</h3>
-      </div>
-      <div class="panel-body">
-        {% for nt in grammar.nonterminals %}
-          <div class="row production">
-            <div class="col-sm-offset-2 col-sm-2">{{ nt }}</div>
-            <div class="col-sm-2">&rarr;</div>
-            <div class="col-sm-4">
-              {{ grammar.productions_for_string(nt)|join(' | ') }}
+  {% if grammar %}
+    <div class="col-md-{{ width }}">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title">{{ title }}</h3>
+        </div>
+        <div class="panel-body">
+          {% for nt in grammar.nonterminals %}
+            <div class="row production">
+              <div class="col-sm-offset-2 col-sm-2">{{ nt }}</div>
+              <div class="col-sm-2">&rarr;</div>
+              <div class="col-sm-4">
+                {{ grammar.productions_for_string(nt)|join(' | ') }}
+              </div>
             </div>
-          </div>
-        {% endfor %}
+          {% endfor %}
+        </div>
       </div>
     </div>
-  </div>
+  {% endif %}
 {%- endmacro %}
 
 {% macro display_first(grammar, title='FIRST Set') %}
-  <div class="col-md-12">
-    <div class="panel panel-default">
-      <div class="panel-heading">
-        <h3 class="panel-title">{{ title }}</h3>
-      </div>
-      <div class="panel-body">
-        {% for nt in grammar.nonterminals %}
-          <div class="row production">
-            <div class="col-sm-offset-3 col-sm-2">FIRST({{ nt }})</div>
-            <div class="col-sm-2">=</div>
-            <div class="col-sm-2">
-              { {{ grammar.first(nt)|join(', ') }} }
+  {% if grammar %}
+    <div class="col-md-12">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title">{{ title }}</h3>
+        </div>
+        <div class="panel-body">
+          {% for nt in grammar.nonterminals %}
+            <div class="row production">
+              <div class="col-sm-offset-3 col-sm-2">FIRST({{ nt }})</div>
+              <div class="col-sm-2">=</div>
+              <div class="col-sm-2">
+                { {{ grammar.first(nt)|join(', ') }} }
+              </div>
             </div>
-          </div>
-        {% endfor %}
+          {% endfor %}
+        </div>
       </div>
     </div>
-  </div>
+  {% endif %}
 {%- endmacro %}
 
 {% macro display_follow(grammar, title='FOLLOW Set') %}
-  <div class="col-md-12">
-    <div class="panel panel-default">
-      <div class="panel-heading">
-        <h3 class="panel-title">{{ title }}</h3>
-      </div>
-      <div class="panel-body">
-        {% for nt in grammar.nonterminals %}
-          <div class="row production">
-            <div class="col-sm-offset-3 col-sm-2">FOLLOW({{ nt }})</div>
-            <div class="col-sm-2">=</div>
-            <div class="col-sm-2">
-              { {{ grammar.follow(nt)|join(', ') }} }
+  {% if grammar %}
+    <div class="col-md-12">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title">{{ title }}</h3>
+        </div>
+        <div class="panel-body">
+          {% for nt in grammar.nonterminals %}
+            <div class="row production">
+              <div class="col-sm-offset-3 col-sm-2">FOLLOW({{ nt }})</div>
+              <div class="col-sm-2">=</div>
+              <div class="col-sm-2">
+                { {{ grammar.follow(nt)|join(', ') }} }
+              </div>
             </div>
-          </div>
-        {% endfor %}
+          {% endfor %}
+        </div>
       </div>
     </div>
-  </div>
+  {% endif %}
 {%- endmacro %}
 
 {% macro display_parsing_table(table, title='Parsing Table') %}
-  <div class="col-md-12">
-    <div class="panel panel-default">
-      <div class="panel-heading">
-        <h3 class="panel-title">{{ title }}</h3>
-      </div>
-      <table class="table table-bordered table-hover">
-        <thead>
-          <tr>
-            <th class="text-center"></th>
-            {% for t in table.terminals %}
-              <th class="text-center production">{{ t }}</th>
-            {% endfor %}
-          </tr>
-        </thead>
-        <tbody>
-          {% for nt in table.nonterminals %}
+  {% if table %}
+    <div class="col-md-12">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title">{{ title }}</h3>
+        </div>
+        <table class="table table-bordered table-hover">
+          <thead>
             <tr>
-              <th class="text-center production">{{ nt }}</th>
+              <th class="text-center"></th>
               {% for t in table.terminals %}
-                {% set productions = table.table[(nt, t)] %}
-                {% if productions is iterable %}
-                  <td class="production">
-                    {% for p in productions %}
-                      {{ p }}<br>
-                    {% endfor %}
-                  </td>
-                {% else %}
-                  <td class="production">{{ productions }}</td>
-                {% endif %}
+                <th class="text-center production">{{ t }}</th>
               {% endfor %}
             </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {% for nt in table.nonterminals %}
+              <tr>
+                <th class="text-center production">{{ nt }}</th>
+                {% for t in table.terminals %}
+                  {% set productions = table.table[(nt, t)] %}
+                  {% if productions is iterable %}
+                    <td class="production">
+                      {% for p in productions %}
+                        {{ p }}<br>
+                      {% endfor %}
+                    </td>
+                  {% else %}
+                    <td class="production">{{ productions }}</td>
+                  {% endif %}
+                {% endfor %}
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
     </div>
-  </div>
+  {% endif %}
 {%- endmacro %}
 
+{% block nav %}
+  <ul class="nav navbar-nav">
+    <li><a href="/">Home</a></li>
+    <li><a href="/about">About</a></li>
+  </ul>
+{% endblock %}
+
 {% block content %}
-  <h1>TP Compiladores</h1>
   {% for e in errors %}
     <div class="alert alert-danger" role="alert">
       <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>

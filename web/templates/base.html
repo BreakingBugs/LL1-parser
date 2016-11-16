@@ -31,11 +31,12 @@
           <a class="navbar-brand" href="/">LL(1) Parser</a>
         </div>
         <div id="navbar" class="collapse navbar-collapse">
-          <ul class="nav navbar-nav">
-            <li class="active"><a href="#">Home</a></li>
-            <li><a href="#about">About</a></li>
-            <li><a href="#contact">Contact</a></li>
-          </ul>
+          {% block nav %}
+            <ul class="nav navbar-nav">
+              <li class="active"><a href="/">Home</a></li>
+              <li><a href="/about">About</a></li>
+            </ul>
+          {% endblock %}
         </div><!--/.nav-collapse -->
       </div>
     </nav>
@@ -43,6 +44,7 @@
     <div class="container">
 
       <div class="starter-template">
+        <h1>Diseño de Compiladores - Trabajo Práctico</h1>
         {% block content %}
         {% endblock %}
       </div>
