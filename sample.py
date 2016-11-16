@@ -61,19 +61,13 @@ second_text = "E -> pa Q R | pa Q S | pa T\n" \
 third_text = "S -> i E t S | i E t S e S | a\n" \
              "E -> b"
 
+final_test = "X -> a A\n" \
+             "A -> x X"
+
 do_it(bnf_recursive)
 
-print("\n\nBefore left factoring: \n\n")
-print(third_text)
-print("\n\nLeft factoring: \n\n")
-g2 = parse_bnf(third_text)
-g2 = remove_left_factoring(g2)
-g2.print_join_productions()
+do_it(third_text)
 
-g3 = parse_bnf(indirect_recursive)
-print("\nBefore removing left recursion")
-g3.print_join_productions()
+do_it(indirect_recursive)
 
-g3 = remove_left_recursion(g3)
-print("\nAfter removing left recursion")
-g3.print_join_productions()
+do_it(final_test)

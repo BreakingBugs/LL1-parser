@@ -7,6 +7,28 @@ from functools import lru_cache
 visited = set()
 
 
+class MemoHelper:
+    def __init__(self):
+        # TODO: use a weak reference for contents
+        self._contents = tuple()
+
+    def add(self, item):
+        self._contents += (item,)
+
+    @property
+    def contents(self):
+        return self._contents
+
+    def __eq__(self, other):
+        return isinstance(other, type(self))
+
+    def __hash__(self):
+        return 0
+
+    def contains(self, x):
+        return x in self.contents
+
+
 class Grammar:
     def __init__(self, productions=None, start=None, epsilon='ε', eof='$'):
         self.productions = productions if productions else OrderedDict()
@@ -93,11 +115,11 @@ class Grammar:
 
         return f
 
-    # TODO: test edge cases
-    @lru_cache(maxsize=15)
-    def follow(self, nonterminal):
+    @lru_cache(maxsize=20)
+    def follow(self, nonterminal, previous=None):
         """
         Compute FOLLOW(A)
+        :param previous: track previous nonterminals
         :param nonterminal: the nonterminal A
         :return: set of terminals that can appear immediately to the right of A in some partial derivation
 
@@ -105,6 +127,11 @@ class Grammar:
         2.a For each production X -> aAb, if ε is in FIRST(b) then put FOLLOW(X) into FOLLOW(A)
         2.b For each production X -> aA, put FOLLOW(X) into FOLLOW(A)
         """
+
+        if not previous:
+            previous = MemoHelper()
+        previous.add(nonterminal)
+
         f = set()
         if self.is_start_symbol(nonterminal):
             f.add(self.eof)
@@ -127,14 +154,14 @@ class Grammar:
                     subsets.add(p.head)
 
         subsets = subsets - {nonterminal}
-
         union_set = ['FOLLOW({})'.format(x) for x in subsets]
         if f:
-            union_set += [str(f)]
+            union_set = [str(f)] + union_set
         print('\tFOLLOW({}) = {}'.format(nonterminal, ' U '.join(union_set)))
 
         for x in subsets:
-            f = f.union(self.follow(x))
+            if not previous.contains(x):
+                f = f.union(self.follow(x, previous))
 
         return sorted(f)
 
@@ -174,7 +201,7 @@ class Grammar:
             print("{} -> {}".format(x, ' | '.join(bodies)))
 
     def clear_cache(self):
-        self.follow.cache_clear()
+        pass
 
     def __str__(self):
         return '\n'.join([str(p) for p in self.iter_productions])
