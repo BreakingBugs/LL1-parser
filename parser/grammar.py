@@ -2,6 +2,7 @@
 from collections import OrderedDict
 
 import itertools
+from copy import copy
 from functools import lru_cache
 
 visited = set()
@@ -42,7 +43,7 @@ class Grammar:
     def __copy__(self):
         g = Grammar(start=self.start, epsilon=self.epsilon, eof=self.eof)
         for h, b in self.productions.items():
-            g.productions[h] = b
+            g.productions[h] = copy(b)
 
         return g
 

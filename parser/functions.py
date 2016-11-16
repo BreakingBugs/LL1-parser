@@ -110,15 +110,15 @@ def remove_immediate_left_recursion(grammar, A):
     return new_productions
 
 
-def remove_left_recursion(grammar):
+def remove_left_recursion(g):
     """
     Remove all left recursions from grammar
-    :param grammar: input grammar
+    :param g: input grammar
     :return: equivalent grammar with no left-recursions
     """
-    temp_grammar = copy(grammar)
-    new_grammar = Grammar(start=grammar.start, epsilon=grammar.epsilon, eof=grammar.eof)
-    nonterminals = nonterminal_ordering(grammar)
+    temp_grammar = copy(g)
+    new_grammar = Grammar(start=temp_grammar.start, epsilon=temp_grammar.epsilon, eof=temp_grammar.eof)
+    nonterminals = nonterminal_ordering(temp_grammar)
 
     for i in range(0, len(nonterminals)):
         ai = nonterminals[i]
