@@ -1,8 +1,8 @@
 {% extends 'base.html' %}
 
-{% macro display_grammar(grammar, title='Gramática', width=4) -%}
+{% macro display_grammar(grammar, title='Gramática', width=5, offset=0) -%}
   {% if grammar %}
-    <div class="col-md-{{ width }}">
+    <div class="col-md-offset-{{ offset }} col-md-{{ width }}">
       <div class="panel panel-default">
         <div class="panel-heading">
           <h3 class="panel-title">{{ title }}</h3>
@@ -127,9 +127,12 @@
   {% endfor %}
 
   <div class="row">
-    {{ display_grammar(grammar, 'Gramática original') }}
-    {{ display_grammar(no_recursion, 'Gramática sin recursividad por izquierda') }}
-    {{ display_grammar(no_factor, 'Gramática sin factor común por izquierda') }}
+    {{ display_grammar(grammar, 'Gramática original', width=6, offset=3) }}
+  </div>
+
+  <div class="row">
+    {{ display_grammar(no_recursion, 'Gramática sin recursividad por izquierda', width=6) }}
+    {{ display_grammar(no_factor, 'Gramática sin factor común por izquierda', width=6) }}
   </div>
 
   <div class="row">
