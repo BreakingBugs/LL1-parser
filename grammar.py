@@ -154,11 +154,6 @@ class Grammar:
                     subsets.add(p.head)
 
         subsets = subsets - {nonterminal}
-        union_set = ['FOLLOW({})'.format(x) for x in subsets]
-        if f:
-            union_set = [str(f)] + union_set
-        print('\tFOLLOW({}) = {}'.format(nonterminal, ' U '.join(union_set)))
-
         for x in subsets:
             if not previous.contains(x):
                 f = f.union(self.follow(x, previous))

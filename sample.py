@@ -22,7 +22,7 @@ def do_it(grammar_text):
 
     print()
     follow = [(nt, g.follow(nt)) for nt in g.nonterminals]
-    print()
+
     for nt, f in follow:
         print('FOLLOW({}) = {}'.format(nt, f))
 

@@ -267,3 +267,4 @@ def pprint_table(g, table, padding=4):
             print('{:^{width}}'.format(str(table.get((x, t), '-')), width=width), end='')
 
         print()
+    print()
