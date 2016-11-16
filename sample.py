@@ -21,8 +21,10 @@ def do_it(grammar_text):
         print('FIRST({}) = {}'.format(nt, g.first(nt)))
 
     print()
-    for nt in g.nonterminals:
-        print('FOLLOW({}) = {}'.format(nt, g.follow(nt)))
+    follow = [(nt, g.follow(nt)) for nt in g.nonterminals]
+    print()
+    for nt, f in follow:
+        print('FOLLOW({}) = {}'.format(nt, f))
 
     print()
     table, ambigous = g.parsing_table()

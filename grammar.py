@@ -2,6 +2,9 @@
 from collections import OrderedDict
 
 import itertools
+from functools import lru_cache
+
+visited = set()
 
 
 class Grammar:
@@ -10,6 +13,7 @@ class Grammar:
         self.start = start
         self.epsilon = epsilon
         self.eof = eof
+        self.clear_cache()
 
     def __copy__(self):
         g = Grammar(start=self.start, epsilon=self.epsilon, eof=self.eof)
@@ -33,8 +37,11 @@ class Grammar:
         except KeyError:
             self.productions[rule.head] = [rule]
 
+        self.clear_cache()
+
     def remove_rule(self, rule):
         self.productions[rule.head].remove(rule)
+        self.clear_cache()
 
     def is_terminal(self, s):
         return s not in self.nonterminals
@@ -87,6 +94,7 @@ class Grammar:
         return f
 
     # TODO: test edge cases
+    @lru_cache(maxsize=15)
     def follow(self, nonterminal):
         """
         Compute FOLLOW(A)
@@ -101,6 +109,7 @@ class Grammar:
         if self.is_start_symbol(nonterminal):
             f.add(self.eof)
 
+        subsets = set()
         for p in self.iter_productions():
             if nonterminal in p.body:
                 position = p.body.index(nonterminal)
@@ -112,12 +121,20 @@ class Grammar:
                     f = f.union(set(self.first(b)) - {self.epsilon})
                 # Case 2.a
                 if a and not b:
-                    f = f.union(self.follow(p.head))
-                    break
+                    subsets.add(p.head)
                 # Case 2.b
-                if a and b and self.epsilon in self.first(b):
-                    f = f.union(self.follow(p.head))
-                    break
+                elif a and b and self.epsilon in self.first(b):
+                    subsets.add(p.head)
+
+        subsets = subsets - {nonterminal}
+
+        union_set = ['FOLLOW({})'.format(x) for x in subsets]
+        if f:
+            union_set += [str(f)]
+        print('\tFOLLOW({}) = {}'.format(nonterminal, ' U '.join(union_set)))
+
+        for x in subsets:
+            f = f.union(self.follow(x))
 
         return sorted(f)
 
@@ -155,6 +172,9 @@ class Grammar:
         for x in self.nonterminals:
             bodies = [' '.join(p.body) for p in self.productions[x]]
             print("{} -> {}".format(x, ' | '.join(bodies)))
+
+    def clear_cache(self):
+        self.follow.cache_clear()
 
     def __str__(self):
         return '\n'.join([str(p) for p in self.iter_productions])
