@@ -161,20 +161,21 @@ def get_max_length(lst):
     return max([len(l) for l in lst])
 
 
-def get_prefixes(grammar, productions):
+def get_prefixes(productions):
     common = {}
     sorted_productions = sorted(productions)
     for x in sorted_productions:
         if x:
             common.setdefault(x[0], []).append(x)
     for k, v in common.items():
-        common_index = 1
-        sublist = [l[0:common_index + 1] for l in v]
-        while check_items_equal(sublist) and common_index < get_max_length(v):
-            common_index += 1
-            sublist = [l[0:common_index + 1] for l in v]
-        common_index = common_index - 1
+        common_index = 0
         if (len(v) > 1):
+            common_index = 1
+            sublist = [l[0:common_index + 1] for l in v]
+            while check_items_equal(sublist) and common_index < get_max_length(v):
+                common_index += 1
+                sublist = [l[0:common_index + 1] for l in v]
+            common_index = common_index - 1
             common[k] = [l[common_index + 1:] for l in v]
         if common_index > 0:
             common[k] = [l[common_index + 1:] for l in v]
@@ -194,7 +195,7 @@ def check_left_factors(grammar):
     for nonterminal in grammar.nonterminals:
         productions = grammar.productions_for(nonterminal)
         if len(productions) > 1:
-            first_elements = [l[0] for l in productions]
+            first_elements = [l[0] for l in productions if l]
             result = check_items_equal(first_elements)
             diff_vals = set(first_elements)
             for i in diff_vals:
@@ -224,7 +225,7 @@ def __remove_left_factoring(grammar):
 
         productions = grammar.productions_for(nonterminal)
         if len(productions) > 1:
-            prefixes = get_prefixes(grammar, productions)
+            prefixes = get_prefixes(productions)
             for prefix, v in prefixes.items():
                 if (len(v) == 1):
                     new_productions.append(Rule(nonterminal, tuple(v[0])))
