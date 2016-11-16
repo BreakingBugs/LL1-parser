@@ -66,6 +66,8 @@ final_test = "X -> a A\n" \
 
 do_it(bnf_recursive)
 
+do_it(ambigous_text)
+
 do_it(third_text)
 
 do_it(indirect_recursive)

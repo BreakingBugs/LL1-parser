@@ -63,6 +63,45 @@
   </div>
 {%- endmacro %}
 
+{% macro display_parsing_table(table, title='Parsing Table') %}
+  <div class="col-md-12">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">{{ title }}</h3>
+      </div>
+      <table class="table table-bordered table-hover">
+        <thead>
+          <tr>
+            <th class="text-center"></th>
+            {% for t in table.terminals %}
+              <th class="text-center production">{{ t }}</th>
+            {% endfor %}
+          </tr>
+        </thead>
+        <tbody>
+          {% for nt in table.nonterminals %}
+            <tr>
+              <th class="text-center production">{{ nt }}</th>
+              {% for t in table.terminals %}
+                {% set productions = table.table[(nt, t)] %}
+                {% if productions is iterable %}
+                  <td class="production">
+                    {% for p in productions %}
+                      {{ p }}<br>
+                    {% endfor %}
+                  </td>
+                {% else %}
+                  <td class="production">{{ productions }}</td>
+                {% endif %}
+              {% endfor %}
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+{%- endmacro %}
+
 {% block content %}
   <h1>TP Compiladores</h1>
   {% for e in errors %}
@@ -87,5 +126,7 @@
     {{ display_follow(no_factor, 'Conjunto Siguiente') }}
   </div>
 
-
+  <div class="row">
+    {{ display_parsing_table(parsing_table) }}
+  </div>
 {% endblock %}

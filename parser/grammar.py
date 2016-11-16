@@ -197,7 +197,6 @@ class Grammar:
 
     def productions_for_string(self, x):
         s = [' '.join(p.body) for p in self.productions[x]]
-        print(s)
         return s
 
     def clear_cache(self):
