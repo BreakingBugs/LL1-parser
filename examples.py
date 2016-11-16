@@ -1,42 +1,5 @@
 # -*- coding: utf-8 -*-
-
-from parser.functions import parse_bnf, remove_left_recursion, remove_left_factoring, pprint_table
-
-
-def do_it(grammar_text):
-    print("Original:")
-    g = parse_bnf(grammar_text)
-    g.print_join_productions()
-
-    print("\nAfter removing left-recursion:")
-    g = remove_left_recursion(g)
-    g.print_join_productions()
-
-    print("\nAfter removing left-factoring:")
-    g = remove_left_factoring(g)
-    g.print_join_productions()
-
-    print()
-    for nt in g.nonterminals:
-        print('FIRST({}) = {}'.format(nt, g.first(nt)))
-
-    print()
-    follow = [(nt, g.follow(nt)) for nt in g.nonterminals]
-
-    for nt, f in follow:
-        print('FOLLOW({}) = {}'.format(nt, f))
-
-    print()
-    table, ambigous = g.parsing_table()
-    print("Parsing Table: ")
-    for k, v in table.items():
-        print("{}: {}".format(k, v))
-    if ambigous:
-        print("El lenguaje de entrada no es LL(1) debido a que se encontraron ambigüedades.")
-
-    print()
-    pprint_table(g, table)
-
+from parse import do_the_whole_thing as do_it
 
 bnf_text = "E -> T E'\n" \
            "E' -> + T E' | ε\n" \
@@ -71,7 +34,7 @@ extra_test = "S -> ( A ) | ε\n" \
 
 bonus_test = "L -> % w D | U#\n" \
              "U -> ! w D U | ε\n" \
-             "D -> : w D | w L\n" \
+             "D -> : w D | w L"
 
 additional_test = "S -> A B e\n" \
                   "A -> d B | a S | c\n" \
