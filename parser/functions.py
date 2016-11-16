@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
-from grammar import Grammar
-from rule import Rule
 from copy import copy
+
+from parser.rule import Rule
+
+from parser.grammar import Grammar
 
 
 def parse_bnf(text, epsilon='ε', eof='$'):

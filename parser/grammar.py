@@ -8,25 +8,27 @@ visited = set()
 
 
 class MemoHelper:
-    def __init__(self):
-        # TODO: use a weak reference for contents
-        self._contents = tuple()
+    """
+    Wrapper to ignore param previous in follow method
+    """
 
-    def add(self, item):
-        self._contents += (item,)
-
-    @property
-    def contents(self):
-        return self._contents
+    def __init__(self, seq=()):
+        self.tup = tuple(seq)
 
     def __eq__(self, other):
-        return isinstance(other, type(self))
+        return isinstance(self, type(other))
 
     def __hash__(self):
-        return 0
+        return hash(type(self))
 
-    def contains(self, x):
-        return x in self.contents
+    def __add__(self, seq=()):
+        return MemoHelper(self.tup + tuple(seq))
+
+    def __iter__(self):
+        return iter(self.tup)
+
+    def __str__(self):
+        return str(self.tup)
 
 
 class Grammar:
@@ -58,8 +60,8 @@ class Grammar:
                 current_productions.append(rule)
         except KeyError:
             self.productions[rule.head] = [rule]
-
-        self.clear_cache()
+        finally:
+            self.clear_cache()
 
     def remove_rule(self, rule):
         self.productions[rule.head].remove(rule)
@@ -116,7 +118,7 @@ class Grammar:
         return f
 
     @lru_cache(maxsize=20)
-    def follow(self, nonterminal, previous=None):
+    def follow(self, nonterminal, previous=MemoHelper()):
         """
         Compute FOLLOW(A)
         :param previous: track previous nonterminals
@@ -127,10 +129,7 @@ class Grammar:
         2.a For each production X -> aAb, if ε is in FIRST(b) then put FOLLOW(X) into FOLLOW(A)
         2.b For each production X -> aA, put FOLLOW(X) into FOLLOW(A)
         """
-
-        if not previous:
-            previous = MemoHelper()
-        previous.add(nonterminal)
+        previous += (nonterminal,)
 
         f = set()
         if self.is_start_symbol(nonterminal):
@@ -154,8 +153,9 @@ class Grammar:
                     subsets.add(p.head)
 
         subsets = subsets - {nonterminal}
+
         for x in subsets:
-            if not previous.contains(x):
+            if x not in previous:
                 f = f.union(self.follow(x, previous))
 
         return sorted(f)
@@ -196,10 +196,17 @@ class Grammar:
             print("{} -> {}".format(x, ' | '.join(bodies)))
 
     def clear_cache(self):
-        pass
+        self.follow.cache_clear()
 
     def __str__(self):
-        return '\n'.join([str(p) for p in self.iter_productions])
+        return '\n'.join([str(p) for p in self.iter_productions()])
 
     def __repr__(self):
-        return '\n'.join([str(p) for p in self.iter_productions])
+        return '\n'.join([str(p) for p in self.iter_productions()])
+
+    def __eq__(self, other):
+        return hash(self) == hash(other)
+
+    def __hash__(self):
+        strings = tuple(sorted([str(p) for p in self.iter_productions()]))
+        return hash(strings)
