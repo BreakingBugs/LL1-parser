@@ -192,9 +192,7 @@ class Grammar:
         return (table, ambigous)
 
     def print_join_productions(self):
-        for x in self.nonterminals:
-            bodies = [' '.join(p.body) for p in self.productions[x]]
-            print("{} -> {}".format(x, ' | '.join(bodies)))
+        print(self)
 
     def productions_for_string(self, x):
         s = [' '.join(p.body) for p in self.productions[x]]
@@ -204,7 +202,12 @@ class Grammar:
         self.follow.cache_clear()
 
     def __str__(self):
-        return '\n'.join([str(p) for p in self.iter_productions()])
+        prod_strings = []
+        for x in self.nonterminals:
+            bodies = [' '.join(p.body) for p in self.productions[x]]
+            prod_strings.append("{} -> {}".format(x, ' | '.join(bodies)))
+
+        return '\n'.join(prod_strings)
 
     def __repr__(self):
         return '\n'.join([str(p) for p in self.iter_productions()])
