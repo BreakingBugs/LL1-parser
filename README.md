@@ -2,6 +2,7 @@
 
 Genera un Analizador Predictivo para Gramáticas LL(1).
 
+
 ## Features
 
 - Escrito en Python3
@@ -17,6 +18,7 @@ $ parser "A -> hola | mundo"
 
 
 ## Basic usage
+
 ```python
 from parser.functions import parse_bnf, remove_left_recursion, remove_left_factoring, pprint_table
 
@@ -40,6 +42,7 @@ follow = g.follow(g.start)
 table, __ = g.parsing_table()
 pprint_table(g, table)
 ```
+
 
 ### Especificacion de Gramática
 
@@ -70,7 +73,9 @@ Importante: Cada cadena sin espacios se considera un símbolo gramatical.
 
 Ej.: id se interpreta como un el símbolo 'id', i d se interpreta como 'i' y 'd'.
 
+
 ## Web Interface
+
 Para usar la interfaz web, es necesario instalar [Flask](http://flask.pocoo.org/)
 ```bash
 $ cd web
@@ -81,6 +86,9 @@ Luego se ejecuta el servidor de desarrollo de Flask
 ```bash
 $ python web.py
 ```
+
+![screen1](http://i.imgur.com/SzITp1I.png)
+![screen2](http://imgur.com/Y8DZsKk.png)
 
 ## Contributing
 
