@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from functions import parse_bnf, remove_left_recursion, remove_left_factoring, pprint_table
+from parser.functions import parse_bnf, remove_left_recursion, remove_left_factoring, pprint_table
 
 
 def do_it(grammar_text):
