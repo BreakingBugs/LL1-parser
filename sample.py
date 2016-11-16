@@ -86,6 +86,8 @@ courtesy_test = "E -> T + E | T\n" \
 
 do_it(bnf_recursive)
 
+do_it(ambigous_text)
+
 do_it(second_text)
 
 do_it(third_text)

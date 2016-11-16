@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <div class="row">
+    <div class="col-md-8">
+      <div class="well well-lg">
+        <form class="form-horizontal" method="post">
+          <div class="form-group">
+            <div class="col-sm-10 col-sm-offset-1">
+              <label for="inputGrammar">BNF</label>
+              <textarea name="bnf" class="form-control" rows="8" id="inputGrammar" required></textarea>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <div class="col-sm-offset-1 col-sm-10">
+              <label for="inputEOF" class="col-sm-2 control-label">EOF</label>
+              <div class="col-sm-3">
+                <input name="eof" type="text" class="form-control" id="inputEOF" value="$" required>
+              </div>
+              <label for="inputEpsilon" class="col-sm-2 control-label">Entrada Vacía</label>
+              <div class="col-sm-3">
+                <input name="epsilon" type="text" class="form-control" id="inputEpsilon" value="ε" required>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <div class="col-sm-offset-1 col-sm-10">
+              <button type="submit" class="btn btn-default">Aceptar</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="well well-lg text-left">
+        <h3>Especificaciones de la Gramática</h3>
+        <p>Las producciones siguen el siguiente formato:</p>
+
+        <pre>Start -> A<br>A -> ( A ) | Two<br>Two -> a<br>Two -> b</pre>
+
+        <p>Se utiliza "->" para separar el no-terminal y el cuerpo de la produccion.</p>
+
+        <pre>x -> y | z</pre>
+        <p>es el atajo EBNF de:</p>
+        <pre>x -> y<br>x -> z</pre>
+
+        <p>
+          Importante: Cada cadena sin espacios se considera un símbolo gramatical.
+          Ej.: <span class="production">id ≠ i d</span>
+        </p>
+      </div>
+    </div>
+  </div>
+{% endblock %}

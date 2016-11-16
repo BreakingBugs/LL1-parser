@@ -21,10 +21,10 @@ class Rule:
         return self.head == other.head and self.body == other.body
 
     def __str__(self):
-        return "{} -> {}".format(self.head, ' '.join(self.body))
+        return "{} → {}".format(self.head, ' '.join(self.body))
 
     def __repr__(self):
-        return "{} -> {}".format(self.head, self.body)
+        return "{} → {}".format(self.head, self.body)
 
     def __hash__(self):
         return hash((self.head, self.body))
