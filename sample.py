@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from functions import parse_bnf, remove_left_recursion, remove_left_factoring
+from functions import parse_bnf, remove_left_recursion, remove_left_factoring, pprint_table
 
 
 def do_it(grammar_text):
@@ -31,6 +31,9 @@ def do_it(grammar_text):
         print("{}: {}".format(k, v))
     if ambigous:
         print("El lenguaje de entrada no es LL(1) debido a que se encontraron ambigüedades.")
+
+    print()
+    pprint_table(g, table)
 
 
 bnf_text = "E -> T E'\n" \

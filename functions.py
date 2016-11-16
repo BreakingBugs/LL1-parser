@@ -241,3 +241,29 @@ def __remove_left_factoring(grammar):
     for prod in new_productions:
         new_grammar.add_rule(prod)
     return __normalize_productions(new_grammar)
+
+
+# WARNING: code is a mess
+def pprint_table(g, table, padding=4):
+    terminals = sorted(set([t for n, t in table.keys()]) - {g.eof}) + [g.eof]  # put EOF at end of list
+    nonterminals = [nt for nt in g.nonterminals]
+
+    width_nt = max([len(x) for x in nonterminals])  # non_terminals width
+    width = max([len(str(p)) for p in g.iter_productions()]) + padding
+    if width % 2 == 0:
+        width += 1
+
+    print('{:{width}}'.format('', width=width_nt + 2), end='')
+    for t in terminals:
+        print('{:^{width}}'.format(t, width=width), end='')
+
+    print()
+    print('-' * ((len(terminals)) * width + width_nt))
+
+    print()
+    for x in nonterminals:
+        print('{:{width}} |'.format(x, width=width_nt), end='')
+        for t in terminals:
+            print('{:^{width}}'.format(str(table.get((x, t), '-')), width=width), end='')
+
+        print()
