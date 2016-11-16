@@ -46,7 +46,7 @@ pprint_table(g, table)
 Se utiliza "->" para separar el no-terminal y el cuerpo de la produccion.
 Las producciones siguen el siguiente formato:
 
-```python
+```
 Start -> A
 A -> ( A ) | Two
 Two -> a
@@ -54,13 +54,13 @@ Two -> b
 ```
 
 Se puede utilizar EBNF, donde:
-```python
+```
 x -> y | z
 ```
 
 y
 
-```python
+```
 x -> y
 x -> z
 ```
