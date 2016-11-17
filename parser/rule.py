@@ -1,12 +1,20 @@
 # -*- coding: utf-8 -*-
 
 
+class InvalidProduction(Exception):
+    def __init__(self, message, production):
+        super().__init__(message)
+        self.production = production
+
+
 class Rule:
     def __init__(self, head, body):
         hash(head)
         hash(body)
         self.head = head
         self.body = body
+        if (head,) == body:
+            raise InvalidProduction("Invalid production. Head is the same as body.", self)
 
     def is_left_recursive(self):
         """

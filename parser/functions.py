@@ -6,6 +6,12 @@ from parser.rule import Rule
 from parser.grammar import Grammar
 
 
+class InvalidGrammar(Exception):
+    def __init__(self, message, bnf_text):
+        super().__init__(message)
+        self.bnf_text = bnf_text
+
+
 def parse_bnf(text, epsilon='ε', eof='$'):
     """
     Parse BNF from text
@@ -24,18 +30,21 @@ def parse_bnf(text, epsilon='ε', eof='$'):
     x -> z
     Be certain to place spaces between things you don't want read as one symbol. ( A ) ≠ (A)
     """
-    productions = text.strip().split('\n')
-    start = productions[0].split('->')[0].strip()  # First rule as starting symbol
-    g = Grammar(start=start, epsilon=epsilon, eof=eof)
+    try:
+        productions = text.strip().split('\n')
+        start = productions[0].split('->')[0].strip()  # First rule as starting symbol
+        g = Grammar(start=start, epsilon=epsilon, eof=eof)
 
-    for r in productions:
-        head, body = [x.strip() for x in r.split('->')]
-        productions = [p.strip() for p in body.split('|')]
-        productions_tokenized = [tuple(p.split()) for p in productions]
-        for p in productions_tokenized:
-            g.add_rule(Rule(head, p))
+        for r in productions:
+            head, body = [x.strip() for x in r.split('->')]
+            productions = [p.strip() for p in body.split('|')]
+            productions_tokenized = [tuple(p.split()) for p in productions]
+            for p in productions_tokenized:
+                g.add_rule(Rule(head, p))
 
-    return g
+        return g
+    except ValueError:
+        raise InvalidGrammar("Invalid grammar", text)
 
 
 def __normalize_productions(grammar):
