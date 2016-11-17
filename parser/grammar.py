@@ -38,14 +38,7 @@ class Grammar:
         self.start = start
         self.epsilon = epsilon
         self.eof = eof
-        self.clear_cache()
-
-    def __copy__(self):
-        g = Grammar(start=self.start, epsilon=self.epsilon, eof=self.eof)
-        for h, b in self.productions.items():
-            g.productions[h] = copy(b)
-
-        return g
+        self.__clear_cache()
 
     @property
     def nonterminals(self):
@@ -66,11 +59,11 @@ class Grammar:
         except KeyError:
             self.productions[rule.head] = [rule]
         finally:
-            self.clear_cache()
+            self.__clear_cache()
 
     def remove_rule(self, rule):
         self.productions[rule.head].remove(rule)
-        self.clear_cache()
+        self.__clear_cache()
 
     def is_terminal(self, s):
         return s not in self.nonterminals
@@ -165,16 +158,25 @@ class Grammar:
 
         return sorted(f)
 
-    def parsing_table(self):
+    def parsing_table(self, is_clean=True):
+        """
+        Compute LL(1) predictive parsing table
+        :param is_clean: If False, will remove left factoring and left recursions.
+        :return: parsing table
+        """
+        from parser.functions import remove_left_recursion, remove_left_factoring  # To avoid cyclic import
+
+        equiv = self if is_clean else remove_left_recursion(remove_left_factoring(copy(self)))
+
         table = {}
         ambigous = False
-        for r in self.iter_productions():
-            terminals = self.first(r.body)
+        for r in equiv.iter_productions():
+            terminals = equiv.first(r.body)
             for t in terminals:
-                if not self.is_terminal(t):
+                if not equiv.is_terminal(t):
                     continue
-                if t == self.epsilon:
-                    f = self.follow(r.head)
+                if t == equiv.epsilon:
+                    f = equiv.follow(r.head)
                     for ef in f:
                         if (table.get((r.head, ef))):
                             ls = []
@@ -202,7 +204,7 @@ class Grammar:
         s = [' '.join(p.body) for p in self.productions[x]]
         return s
 
-    def clear_cache(self):
+    def __clear_cache(self):
         self.follow.cache_clear()
 
     def __str__(self):
@@ -222,3 +224,10 @@ class Grammar:
     def __hash__(self):
         strings = tuple(sorted([str(p) for p in self.iter_productions()]))
         return hash(strings)
+
+    def __copy__(self):
+        g = Grammar(start=self.start, epsilon=self.epsilon, eof=self.eof)
+        for h, b in self.productions.items():
+            g.productions[h] = copy(b)
+
+        return g

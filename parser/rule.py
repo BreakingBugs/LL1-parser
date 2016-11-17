@@ -32,7 +32,7 @@ class Rule:
         return "{} → {}".format(self.head, ' '.join(self.body))
 
     def __repr__(self):
-        return "{} → {}".format(self.head, self.body)
+        return "Rule({}, {})".format(repr(self.head), self.body)
 
     def __hash__(self):
         return hash((self.head, self.body))
