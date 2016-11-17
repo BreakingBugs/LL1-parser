@@ -19,13 +19,16 @@ $ python parse.py "A -> hola | mundo"
 
 ## CLI Usage
 ```bash
-# Generate parsing table
+# Generar table de análisis predictivo
 $ python parse.py "A -> hola | mundo"
 
-# Generate parsing table and display intermediate process
+# Especificar marcador EOF and símbolo vacío
+$ python parse.py "A -> hola | mundo | vacio" --epsilon vacio --eof $
+
+# Generar tabla y mostrar pasos intermedios
 $ python parse.py "A -> hola | mundo" -v
 
-# Read grammar from file and write output to file
+# Leer gramática de un archivo de y escribir en un archivo
 $ python parse.py -i grammar.txt -o table.txt
 ```
 
@@ -52,8 +55,12 @@ first = g.first(g.start)
 # Calcula el conjunto FOLLOW del símbolo de inicio
 follow = g.follow(g.start)
 
-# Calcula la tabla de analisis predictivo
-table, __ = g.parsing_table()
+# Calcula la tabla de analisis predictivo, sin realizar preprocesamiento
+table, ambiguous = g.parsing_table()
+pprint_table(g, table)
+
+# Realiza preprocesamiento (factor comun y recursion por izquierda)
+table, ambiguous = g.parsing_table(is_clean=False)
 pprint_table(g, table)
 ```
 
