@@ -6,8 +6,8 @@ Genera un Analizador Predictivo para Gramáticas LL(1).
 ## Features
 
 - Escrito en Python3
-- No requiere otras dependencias
-- Interfaz Web desarrollada con flask
+- No requiere otras dependencias (sí para interfaz web)
+- Interfaz Web desarrollada con [Flask](http://flask.pocoo.org/)
 
 ## Installation
 
@@ -90,7 +90,7 @@ Ej.: id se interpreta como un el símbolo 'id', i d se interpreta como 'i' y 'd'
 
 ## Web Interface
 
-Para usar la interfaz web, es necesario instalar [Flask](http://flask.pocoo.org/)
+Para usar la interfaz web, es necesario instalar **Flask**
 ```bash
 $ cd web
 $ pip install Flask
