@@ -38,7 +38,7 @@ from parser.functions import parse_bnf, remove_left_recursion, remove_left_facto
 
 # Analiza la cadena de entrada para crear una Gramática
 g = parse_bnf(grammar_text) 
-g.print_join_productions()
+print(g)
 
 # Eliminar recursión por izquierda
 g = remove_left_recursion(g)

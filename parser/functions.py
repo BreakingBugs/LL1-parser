@@ -15,6 +15,10 @@ class InvalidGrammar(Exception):
 def parse_bnf(text, epsilon='ε', eof='$'):
     """
     Parse BNF from text
+    :param text: grammar especification
+    :param epsilon: empty symbol
+    :param eof: EOF symbol
+    :return: a grammar
 
     Productions use the following format:
 
@@ -22,13 +26,6 @@ def parse_bnf(text, epsilon='ε', eof='$'):
     A -> ( A ) | Two
     Two -> a
     Two -> b
-
-    Symbols are inferred as terminal by absence from the left hand side of production productions.
-    "->" designates definition, "|" designates alternation, and newlines designate termination.
-    x -> y | z is EBNF short-hand for
-    x -> y
-    x -> z
-    Be certain to place spaces between things you don't want read as one symbol. ( A ) ≠ (A)
     """
     try:
         productions = text.strip().split('\n')
@@ -63,7 +60,6 @@ def __normalize_productions(grammar):
     return normalized_grammar
 
 
-# TODO: Definir un ordenamiento
 def nonterminal_ordering(grammar):
     return [x for x in grammar.nonterminals]
 
