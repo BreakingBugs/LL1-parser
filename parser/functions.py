@@ -252,15 +252,28 @@ def __remove_left_factoring(grammar):
     return __normalize_productions(new_grammar)
 
 
+def __join_amb(entry):
+    """
+    Join ambigous entry from parsing table
+    """
+    return ' | '.join([str(e) for e in entry])
+
+
 # WARNING: code is a mess
 def pprint_table(g, table, padding=4):
     terminals = sorted(set([t for n, t in table.keys()]) - {g.eof}) + [g.eof]  # put EOF at end of list
     nonterminals = [nt for nt in g.nonterminals]
 
     width_nt = max([len(x) for x in nonterminals])  # non_terminals width
-    width = max([len(str(p)) for p in g.iter_productions()]) + padding
+    width = max([len(str(p)) for p in g.iter_productions()])
+
+    amb = [len(__join_amb(x)) for x in table.values() if isinstance(x, list)]
+    if amb:
+        width = max(width, *amb)
+
+    width += padding
     if width % 2 == 0:
-        width += 1
+        width += 1  # Width must be odd to center correctly
 
     print('{:{width}}'.format('', width=width_nt + 2), end='')
     for t in terminals:
@@ -273,7 +286,10 @@ def pprint_table(g, table, padding=4):
     for x in nonterminals:
         print('{:{width}} |'.format(x, width=width_nt), end='')
         for t in terminals:
-            print('{:^{width}}'.format(str(table.get((x, t), '-')), width=width), end='')
+            entry = table.get((x, t), '-')
+            if isinstance(entry, list):
+                entry = __join_amb(entry)
+            print('{:^{width}}'.format(str(entry), width=width), end='')
 
         print()
     print()
