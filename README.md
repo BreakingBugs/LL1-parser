@@ -104,6 +104,10 @@ $ python web.py
 ![screen1](http://i.imgur.com/SzITp1I.png)
 ![screen2](http://imgur.com/Y8DZsKk.png)
 
+## Team
+- Jordan Ayala [jmayalag](https://github.com/jmayalag)
+- Guillermo Peralta [voluntadpear](https://github.com/voluntadpear)
+
 ## Contributing
 
 #### Bug Reports & Feature Requests
