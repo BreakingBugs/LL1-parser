@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from collections import OrderedDict
 from copy import copy
 
 from parser.rule import Rule
@@ -167,7 +168,7 @@ def get_max_length(lst):
 
 
 def get_prefixes(productions):
-    common = {}
+    common = OrderedDict()
     sorted_productions = sorted(productions)
     for x in sorted_productions:
         if x:

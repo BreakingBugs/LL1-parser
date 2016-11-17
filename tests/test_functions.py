@@ -98,6 +98,12 @@ class TestRemoveLeftRecursion(unittest.TestCase):
 
 
 class TestRemoveLeftFactoring(unittest.TestCase):
+    def test_check_left_factor(self):
+        solved = functions.parse_bnf(test_data.solved_left_factoring)
+        unsolved = functions.parse_bnf(test_data.unsolved_left_factoring)
+        self.assertTrue(functions.check_left_factors(unsolved))
+        self.assertFalse(functions.check_left_factors(solved))
+
     def test_book_example(self):
         """
         S -> i E t S | i E t S e S | a
@@ -106,12 +112,6 @@ class TestRemoveLeftFactoring(unittest.TestCase):
         solved = functions.parse_bnf(test_data.solved_left_factoring)
         unsolved = functions.parse_bnf(test_data.unsolved_left_factoring)
         g = functions.remove_left_factoring(unsolved)
-        if solved != g:
-            print('Not equal')
-        print(solved)
-        print()
-        print(g)
-
         self.assertEqual(solved, g)
 
     def test_cases(self):
