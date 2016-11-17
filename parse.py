@@ -49,21 +49,32 @@ def do_the_whole_thing(grammar_text, epsilon='ε', eof='$', output=None, verbose
 
 
 def main(productions, epsilon, eof, infile, output, verbose):
+    sentinel = ''
     if infile:
-        with open(infile, 'r') as f:
-            productions = [l.strip() for l in f.readlines()]
+        for file in infile:
+            with open(file, 'r') as f:
+                text = [l.strip() for l in f.readlines() if not l.startswith('#')] + [sentinel]
 
-    do_the_whole_thing('\n'.join(productions), epsilon, eof, output=output, verbose=verbose)
+                current = []
+                for p in text:
+                    if p != sentinel:
+                        current.append(p)
+                    # Check if current is not empty, to discard sequence of sentinels
+                    elif p == sentinel and current:
+                        do_the_whole_thing('\n'.join(current), epsilon, eof, output=output, verbose=verbose)
+                        current = []
+    else:
+        do_the_whole_thing('\n'.join(productions), epsilon, eof, output=output, verbose=verbose)
 
 
 if __name__ == '__main__':
     aparse = argparse.ArgumentParser(description='Generate Parsing Table for LL(1) grammars.')
-    aparse.add_argument('productions', help='Productions for grammar', nargs='*', default=None)
-    aparse.add_argument('--epsilon', help='Empty symbol', default='ε')
-    aparse.add_argument('--eof', help='End of line marker', default='$')
-    aparse.add_argument('-i', '--input', nargs='?', dest='infile', help='Input file with grammar description')
-    aparse.add_argument('-o', '--output', nargs='?', help='Output file name')
-    aparse.add_argument('-v', '--verbose', action='store_true', help='Show intermediate calculations')
+    aparse.add_argument('productions', help='productions for grammar.', nargs='*', default=None)
+    aparse.add_argument('--epsilon', help='empty symbol.', default='ε')
+    aparse.add_argument('--eof', help='end of line marker.', default='$')
+    aparse.add_argument('-i', '--input', nargs='*', dest='infile', help='input file with grammar description.')
+    aparse.add_argument('-o', '--output', nargs='?', help='sutput file name. File must exist.')
+    aparse.add_argument('-v', '--verbose', action='store_true', help='show intermediate steps.')
     args = aparse.parse_args()
 
     if args.productions and args.infile:

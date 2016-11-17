@@ -29,7 +29,7 @@ def parse_bnf(text, epsilon='ε', eof='$'):
     Two -> b
     """
     try:
-        productions = text.strip().split('\n')
+        productions = [p for p in text.strip().split('\n') if not p.startswith('#')]
         start = productions[0].split('->')[0].strip()  # First rule as starting symbol
         g = Grammar(start=start, epsilon=epsilon, eof=eof)
 

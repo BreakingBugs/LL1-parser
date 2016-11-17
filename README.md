@@ -19,7 +19,7 @@ $ python parse.py "A -> hola | mundo"
 
 ## CLI Usage
 ```bash
-# Generar table de análisis predictivo
+# Generar tabla de análisis predictivo
 $ python parse.py "A -> hola | mundo"
 
 # Especificar marcador EOF and símbolo vacío
@@ -28,8 +28,11 @@ $ python parse.py "A -> hola | mundo | vacio" --epsilon vacio --eof $
 # Generar tabla y mostrar pasos intermedios
 $ python parse.py "A -> hola | mundo" -v
 
-# Leer gramática de un archivo de y escribir en un archivo
+# Leer gramática(s) de un archivo de texto y escribir en otro archivo
 $ python parse.py -i grammar.txt -o table.txt
+
+# Mostrar mensaje de ayuda
+$ python parse.py --help
 ```
 
 ![cli](http://imgur.com/3vDx2Hq.png)
@@ -71,6 +74,7 @@ Se utiliza "->" para separar el no-terminal y el cuerpo de la produccion.
 Las producciones siguen el siguiente formato:
 
 ```
+# Comentarios se ignoran
 Start -> A
 A -> ( A ) | Two
 Two -> a
@@ -107,6 +111,8 @@ Luego se ejecuta el servidor de desarrollo de Flask
 ```bash
 $ python web.py
 ```
+
+Finalmente, ingrese desde su navegador a [http://localhost:5000](http://localhost:5000).
 
 ![screen1](http://i.imgur.com/SzITp1I.png)
 ![screen2](http://imgur.com/Y8DZsKk.png)

@@ -1,0 +1,12 @@
+# Ejemplo Dragon Book
+E -> E + T | T
+T -> T * F | F
+F -> ( E ) | id
+
+# Ejemplo factor comun
+S -> i E t S | i E t S e S | a
+E -> b
+
+# Ejemplo recursion indirecta
+S -> A a | b
+A -> A c | S d | ε
