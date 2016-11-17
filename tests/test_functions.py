@@ -2,7 +2,7 @@
 from parser.functions import InvalidGrammar
 from parser.grammar import Grammar
 from parser.rule import Rule, InvalidProduction
-from parser import functions
+from parser import functions as f
 
 from tests import test_data
 
@@ -52,24 +52,24 @@ class TestParseBNF(unittest.TestCase):
         a.add_rule(Rule('F', ('(', 'E', ')')))
         a.add_rule(Rule('F', ('id',)))
         text = str(a)
-        g = functions.parse_bnf(text)
+        g = f.parse_bnf(text)
         self.assertEqual(a, g)
 
     def test_invalid_grammar(self):
         text = "INVALID"
         with self.assertRaises(InvalidGrammar):
-            functions.parse_bnf(text)
+            f.parse_bnf(text)
 
     def test_invalid_production(self):
         text = "E -> E + T | E"  # Production is the same as nonterminal
         with self.assertRaises(InvalidProduction):
-            functions.parse_bnf(text)
+            f.parse_bnf(text)
 
     def test_cases(self):
         for case in test_data.examples:
-            g = functions.parse_bnf(case)
+            g = f.parse_bnf(case)
             text = str(g)
-            self.assertEqual(g, functions.parse_bnf(text))
+            self.assertEqual(g, f.parse_bnf(text))
 
 
 class TestRemoveLeftRecursion(unittest.TestCase):
@@ -78,47 +78,131 @@ class TestRemoveLeftRecursion(unittest.TestCase):
         self.assertTrue(p.is_left_recursive())
 
     def test_book_example(self):
-        solved = functions.parse_bnf(test_data.solved_indirect_recursion_book_example)
-        unsolved = functions.parse_bnf(test_data.unsolved_indirect_recursion_book_example)
-        g = functions.remove_left_recursion(unsolved)
+        solved = f.parse_bnf(test_data.solved_indirect_recursion_book_example)
+        unsolved = f.parse_bnf(test_data.unsolved_indirect_recursion_book_example)
+        g = f.remove_left_recursion(unsolved)
         self.assertEqual(solved, g)
 
     def test_simple_book_example(self):
-        solved = functions.parse_bnf(test_data.solved_left_recursion)
-        unsolved = functions.parse_bnf(test_data.unsolved_left_recursion)
-        g = functions.remove_left_recursion(unsolved)
+        solved = f.parse_bnf(test_data.solved_left_recursion)
+        unsolved = f.parse_bnf(test_data.unsolved_left_recursion)
+        g = f.remove_left_recursion(unsolved)
         self.assertEqual(solved, g)
 
     def test_cases(self):
         for case in test_data.examples:
-            g = functions.parse_bnf(case)
-            g = functions.remove_left_recursion(g)
+            g = f.parse_bnf(case)
+            g = f.remove_left_recursion(g)
             for p in g.iter_productions():
                 self.assertFalse(p.is_left_recursive(), msg='{} is left-recursive'.format(p))
 
 
 class TestRemoveLeftFactoring(unittest.TestCase):
     def test_check_left_factor(self):
-        solved = functions.parse_bnf(test_data.solved_left_factoring)
-        unsolved = functions.parse_bnf(test_data.unsolved_left_factoring)
-        self.assertTrue(functions.check_left_factors(unsolved))
-        self.assertFalse(functions.check_left_factors(solved))
+        solved = f.parse_bnf(test_data.solved_left_factoring)
+        unsolved = f.parse_bnf(test_data.unsolved_left_factoring)
+        self.assertTrue(f.check_left_factors(unsolved))
+        self.assertFalse(f.check_left_factors(solved))
 
     def test_book_example(self):
         """
         S -> i E t S | i E t S e S | a
         E -> b
         """
-        solved = functions.parse_bnf(test_data.solved_left_factoring)
-        unsolved = functions.parse_bnf(test_data.unsolved_left_factoring)
-        g = functions.remove_left_factoring(unsolved)
+        solved = f.parse_bnf(test_data.solved_left_factoring)
+        unsolved = f.parse_bnf(test_data.unsolved_left_factoring)
+        g = f.remove_left_factoring(unsolved)
         self.assertEqual(solved, g)
 
     def test_cases(self):
         for case in test_data.examples:
-            g = functions.parse_bnf(case)
-            g = functions.remove_left_factoring(g)
-            self.assertFalse(functions.check_left_factors(g), msg='{} has left factors'.format(g))
+            g = f.parse_bnf(case)
+            g = f.remove_left_factoring(g)
+            self.assertFalse(f.check_left_factors(g), msg='{} has left factors'.format(g))
+
+
+class TestFirst(unittest.TestCase):
+    def test_book_example(self):
+        g = f.parse_bnf(test_data.book_example)
+        answers = {
+            'E': {'(', 'id'},
+            'E\'': {'+', 'ε'},
+            'T': {'(', 'id'},
+            'T\'': {'*', 'ε'},
+            'F': {'(', 'id'}
+        }
+
+        for x, first in answers.items():
+            self.assertEqual(first, set(g.first(x)))
+
+    def test_cases(self):
+        try:
+            for case in test_data.examples:
+                g = f.parse_bnf(case)
+                h = f.remove_left_recursion(g)
+                i = f.remove_left_factoring(h)
+                for x in i.nonterminals:
+                    i.first(x)
+        except Exception as e:
+            self.fail(str(e))
+
+
+class TestFollow(unittest.TestCase):
+    def test_book_example(self):
+        g = f.parse_bnf(test_data.book_example)
+        answers = {
+            'E': {'$', ')'},
+            'E\'': {'$', ')'},
+            'T': {'$', ')', '+'},
+            'T\'': {'$', ')', '+'},
+            'F': {'$', ')', '*', '+'}
+        }
+
+        for x, first in answers.items():
+            self.assertEqual(first, set(g.follow(x)))
+
+    def test_cases(self):
+        try:
+            for case in test_data.examples:
+                g = f.remove_left_factoring(f.remove_left_recursion(f.parse_bnf(case)))
+                for x in g.nonterminals:
+                    g.follow(x)
+        except Exception as e:
+            self.fail(str(e))
+
+
+class TestParsingTable(unittest.TestCase):
+    def test_book_example(self):
+        g = f.parse_bnf(test_data.unsolved_left_recursion)
+        # Trust me, this is the answer
+        answer = {
+            ("T'", '+'): Rule("T'", ('ε',)), ('F', 'id'): Rule('F', ('id',)),
+            ("E'", '+'): Rule("E'", ('+', 'T', "E'")), ('E', '('): Rule('E', ('T', "E'")),
+            ('T', '('): Rule('T', ('F', "T'")), ("E'", '$'): Rule("E'", ('ε',)),
+            ("T'", '*'): Rule("T'", ('*', 'F', "T'")), ("T'", ')'): Rule("T'", ('ε',)),
+            ("T'", '$'): Rule("T'", ('ε',)), ("E'", ')'): Rule("E'", ('ε',)), ('T', 'id'): Rule('T', ('F', "T'")),
+            ('E', 'id'): Rule('E', ('T', "E'")), ('F', '('): Rule('F', ('(', 'E', ')'))
+        }
+
+        table, amb = g.parsing_table(is_clean=False)
+
+        self.assertFalse(amb)
+        self.assertEqual(table, answer)
+
+    def test_ambiguous(self):
+        for case in test_data.ambiguous:
+            g = f.parse_bnf(case)
+            table, amb = g.parsing_table(is_clean=False)
+
+            self.assertTrue(amb)
+
+    def test_cases(self):
+        try:
+            for case in test_data.examples:
+                g = f.parse_bnf(case)
+                g.parsing_table(is_clean=False)
+        except Exception as e:
+            self.fail(str(e))
 
 
 if __name__ == '__main__':

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 examples = []
+ambiguous = []
 
 examples.append("E -> T E'\n"
                 "E' -> + T E' | ε\n"
@@ -8,12 +9,15 @@ examples.append("E -> T E'\n"
                 "T' -> * F T' | ε\n"
                 "F -> ( E ) | id")
 
+book_example = examples[-1]
+
 solved_left_recursion = examples[-1]
 
 examples.append("S -> A a | b\n"
                 "A -> A c | S d | ε")
 
 unsolved_indirect_recursion_book_example = examples[-1]
+ambiguous.append(examples[-1])
 
 examples.append("S -> A a | b\n"
                 "A -> A' | b d A'\n"
@@ -29,6 +33,8 @@ unsolved_left_recursion = examples[-1]
 examples.append("S -> A | B\n"
                 "A -> a A b | ε\n"
                 "B -> a B b b | ε")
+
+ambiguous.append(examples[-1])
 
 examples.append("E -> pa Q R | pa Q S | pa T\n"
                 "U -> e")
