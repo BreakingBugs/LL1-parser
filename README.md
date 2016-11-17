@@ -108,4 +108,4 @@ $ python web.py
 
 #### Bug Reports & Feature Requests
 
-Usar el [issue tracker](https://github.com/karan/joe/issues) para reportar bugs o sugerir algún feature.
+Usar el [issue tracker](https://github.com/BreakingBugs/LL1-parser/issues) para reportar bugs o sugerir algún feature.
