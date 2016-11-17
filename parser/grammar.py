@@ -52,6 +52,10 @@ class Grammar:
         return self.productions.keys()
 
     def iter_productions(self):
+        """
+        Return iterable of productions
+        :return: Rule iterable
+        """
         return itertools.chain.from_iterable(self.productions.values())
 
     def add_rule(self, rule):
