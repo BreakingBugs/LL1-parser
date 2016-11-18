@@ -8,6 +8,12 @@ from functools import lru_cache
 visited = set()
 
 
+class InvalidGrammar(Exception):
+    def __init__(self, message, bnf_text):
+        super().__init__(message)
+        self.bnf_text = bnf_text
+
+
 class MemoHelper:
     """
     Wrapper to ignore param previous in follow method

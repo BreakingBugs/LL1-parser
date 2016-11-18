@@ -4,13 +4,7 @@ from copy import copy
 
 from parser.rule import Rule
 
-from parser.grammar import Grammar
-
-
-class InvalidGrammar(Exception):
-    def __init__(self, message, bnf_text):
-        super().__init__(message)
-        self.bnf_text = bnf_text
+from parser.grammar import Grammar, InvalidGrammar
 
 
 def parse_bnf(text, epsilon='ε', eof='$'):

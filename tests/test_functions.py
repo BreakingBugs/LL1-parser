@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
-from parser.functions import InvalidGrammar
-from parser.grammar import Grammar
-from parser.rule import Rule, InvalidProduction
 from parser import functions as f
-
+from parser.grammar import Grammar, InvalidGrammar
+from parser.rule import Rule, InvalidProduction
 from tests import test_data
 
 import unittest
