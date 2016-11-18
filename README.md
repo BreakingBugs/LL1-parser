@@ -1,4 +1,5 @@
 # LL(1) Parser Generator
+[![Build Status](https://travis-ci.org/BreakingBugs/LL1-parser.svg?branch=master)](https://travis-ci.org/BreakingBugs/LL1-parser)
 
 Genera un Analizador Predictivo para Gramáticas LL(1).
 
