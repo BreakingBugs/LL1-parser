@@ -72,3 +72,9 @@ examples.append("Exp -> Exp + Exp2 | Exp - Exp2 | Exp2\n"
 
 examples.append("E -> T + E | T\n"
                 "T -> int | int * T | ( E )")
+
+examples.append("P -> D\n"
+                "D -> T : id ; D | ε\n"
+                "T -> real | int")
+
+exam_exercise = examples[-1]

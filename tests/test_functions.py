@@ -203,5 +203,50 @@ class TestParsingTable(unittest.TestCase):
             self.fail(str(e))
 
 
+class TestComplete(unittest.TestCase):
+    def setUp(self):
+        self.g = f.parse_bnf(test_data.exam_exercise)
+
+    def test_parsing(self):
+        h = Grammar(start='P')
+        h.add_rule(Rule('P', ('D',)))
+        h.add_rule(Rule('D', ('T', ':', 'id', ';', 'D')))
+        h.add_rule(Rule('D', ('ε',)))
+        h.add_rule(Rule('T', ('real',)))
+        h.add_rule(Rule('T', ('int',)))
+        self.assertEqual(self.g, h)
+
+    def test_terminals(self):
+        correct = {':', 'id', ';', 'ε', 'real', 'int'}
+        terminals = set(self.g.terminals)
+        self.assertEqual(terminals, correct)
+
+    def test_nonterminals(self):
+        correct = {'P', 'D', 'T'}
+        nonterminals = set(self.g.nonterminals)
+        self.assertEqual(nonterminals, correct)
+
+    def test_first(self):
+        correct = {
+            'P': {'real', 'int', 'ε'},
+            'D': {'real', 'int', 'ε'},
+            'T': {'real', 'int'}
+        }
+
+        for x in self.g.nonterminals:
+            self.assertEqual(set(self.g.first(x)), correct[x])
+
+    def test_follow(self):
+        correct = {
+            'P': {'$'},
+            'D': {'$'},
+            'T': {':'}
+        }
+
+        for x in self.g.nonterminals:
+            print('FOLLOW({}) = {}'.format(x, self.g.follow(x)))
+            self.assertEqual(set(self.g.follow(x)), correct[x])
+
+
 if __name__ == '__main__':
     unittest.main()
