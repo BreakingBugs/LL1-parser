@@ -244,8 +244,23 @@ class TestComplete(unittest.TestCase):
         }
 
         for x in self.g.nonterminals:
-            print('FOLLOW({}) = {}'.format(x, self.g.follow(x)))
             self.assertEqual(set(self.g.follow(x)), correct[x])
+
+    def test_parsing_table(self):
+        correct = {
+            ('P', 'real'): Rule('P', ('D',)),
+            ('P', 'int'): Rule('P', ('D',)),
+            ('P', '$'): Rule('P', ('D',)),
+            ('D', 'int'): Rule('D', ('T', ':', 'id', ';', 'D')),
+            ('D', 'real'): Rule('D', ('T', ':', 'id', ';', 'D')),
+            ('D', '$'): Rule('D', ('ε',)),
+            ('T', 'int'): Rule('T', ('int',)),
+            ('T', 'real'): Rule('T', ('real',))
+        }
+
+        table, amb = self.g.parsing_table()
+        self.assertFalse(amb)
+        self.assertEqual(table, correct)
 
 
 if __name__ == '__main__':

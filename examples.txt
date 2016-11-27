@@ -10,3 +10,8 @@ E -> b
 # Ejemplo recursion indirecta
 S -> A a | b
 A -> A c | S d | ε
+
+# Ejercicio del Segundo Parcial
+P -> D
+D -> T : id ; D | ε
+T -> real | int

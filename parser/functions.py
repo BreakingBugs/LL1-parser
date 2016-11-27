@@ -255,7 +255,7 @@ def __join_amb(entry):
 
 # WARNING: code is a mess
 def pprint_table(g, table, padding=4):
-    terminals = sorted(set([t for n, t in table.keys()]) - {g.eof}) + [g.eof]  # put EOF at end of list
+    terminals = sorted(set(g.terminals) - {g.epsilon}) + [g.eof]  # put EOF at end of list
     nonterminals = [nt for nt in g.nonterminals]
 
     width_nt = max([len(x) for x in nonterminals])  # non_terminals width

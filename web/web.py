@@ -26,7 +26,7 @@ def just_do_it(req):
             errors.append('El lenguaje de entrada no es LL(1) debido a que se encontraron ambigüedades.')
 
         parsing_table = {'table': table,
-                         'terminals': sorted(set([t for n, t in table.keys()]) - {g.eof}) + [g.eof],
+                         'terminals': sorted(set(g.terminals) - {g.epsilon}) + [g.eof],
                          'nonterminals': [nt for nt in grammar_not_factor.nonterminals]}
 
     except InvalidGrammar:
