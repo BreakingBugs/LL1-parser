@@ -50,6 +50,17 @@ class Grammar:
     def nonterminals(self):
         return self.productions.keys()
 
+    @property
+    def terminals(self):
+        nonterminals = self.nonterminals
+        terminals = OrderedDict()
+        for r in self.iter_productions():
+            for symbol in r.body:
+                if symbol not in nonterminals:
+                    terminals.update({symbol: 1})
+
+        return terminals.keys()
+
     def iter_productions(self):
         """
         Return iterable of productions

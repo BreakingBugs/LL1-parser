@@ -13,6 +13,8 @@ class Rule:
         hash(body)
         self.head = head
         self.body = body
+        if not isinstance(self.body, tuple):
+            raise ValueError("Body of production must be a tuple")
         if (head,) == body:
             raise InvalidProduction("Invalid production. Head is the same as body.", self)
 
