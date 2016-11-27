@@ -154,17 +154,18 @@ class Grammar:
         for p in self.iter_productions():
             if nonterminal in p.body:
                 position = p.body.index(nonterminal)
-                a = p.body[0:position]
+                a = p.body[0:position] # a can be any string, even empty
                 b = p.body[position + 1:]
 
                 # Case 1
-                if a and b:
+                if b:
                     f = f.union(set(self.first(b)) - {self.epsilon})
-                # Case 2.a
-                if a and not b:
+
+                # Case 2.a (Cases 1 and 2 aren't mutually exclusive)
+                if not b:
                     subsets.add(p.head)
                 # Case 2.b
-                elif a and b and self.epsilon in self.first(b):
+                elif b and self.epsilon in self.first(b):
                     subsets.add(p.head)
 
         subsets = subsets - {nonterminal}
