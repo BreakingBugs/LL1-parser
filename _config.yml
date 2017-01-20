@@ -1,0 +1,8 @@
+title: Ll1-parser
+description: Analizador Predictivo para lenguajes LL(1)
+google_analytics: 
+show_downloads: true
+theme: jekyll-theme-cayman
+
+gems:
+  - jekyll-mentions
