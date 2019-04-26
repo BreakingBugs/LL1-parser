@@ -53,3 +53,6 @@ fabric.properties
 out
 gen
 __pycache__/
+
+venv
+.venv
